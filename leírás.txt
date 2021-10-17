@@ -1,0 +1,6 @@
+Használt eszközök:
+- Dia
+- VSCode
+
+Normalizálási lépések:
+- TODO

@@ -1,0 +1,9 @@
+Tanár(_személyi_szám_, képzettség, név)
+Osztály(_megnevezés_)
+Óra(_nap_, _időpont_, megnevezés, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)
+Terem(_azonosító_, típus, férőhelyek száma, épület, van-e projektor)
+Diák(_neptun_kód_, Osztály._megnevezés_, név)
+
+- 1. NF teljesül
+
+TODO: 2. NF és 3. NF
