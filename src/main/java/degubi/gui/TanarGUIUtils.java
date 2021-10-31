@@ -3,35 +3,32 @@ package degubi.gui;
 import degubi.*;
 import degubi.db.*;
 import degubi.model.*;
-import java.util.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
 
-public final class TanarokGUIUtils {
-    public static final Map<String, String> filters = Map.of("Személyi Szám", "szemelyiSzam", "Név", "nev", "Képzettség", "kepzettseg");
-    private TanarokGUIUtils() {}
+public final class TanarGUIUtils {
+    private TanarGUIUtils() {}
 
-    public static void showNewTanarDialog(TableView<Tanar> table) {
+    public static void showEditorDialog(TableView<Tanar> table) {
         var stage = new Stage();
 
         var szemelyiField = new TextField();
         var nevField = new TextField();
-        var kepzettsegField = new TextField();
+        var kepzettsegComboBox = new ComboBox<>(KepzettsegDBUtils.listAll().join());
 
         var okButtonBinding = Components.createEmptyFieldBinding(szemelyiField)
                                         .or(Components.createEmptyFieldBinding(nevField))
-                                        .or(Components.createEmptyFieldBinding(kepzettsegField));
+                                        .or(Components.createEmptyComboBoxBinding(kepzettsegComboBox));
 
-        var alsoGombPanel = Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonPress(szemelyiField, nevField, kepzettsegField, stage, table ));
         var components = Components.newFormGridPane();
         components.add(Components.newLabel("Személyi:"), 0, 0);
         components.add(szemelyiField, 1, 0);
         components.add(Components.newLabel("Név:"), 0, 1);
         components.add(nevField, 1, 1);
         components.add(Components.newLabel("Képzettség:"), 0, 2);
-        components.add(kepzettsegField, 1, 2);
-        components.add(alsoGombPanel, 0, 6, 2, 1);
+        components.add(kepzettsegComboBox, 1, 2);
+        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(szemelyiField, nevField, kepzettsegComboBox, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Tanár");
@@ -44,27 +41,27 @@ public final class TanarokGUIUtils {
                                                       Components.newStringColumn("Név", "nev"),
                                                       Components.newStringColumn("Képzettség", "kepzettseg"));
 
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonPress(table, i)));
+        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
     }
 
-    public static void refreshTanarokTable(TableView<Tanar> table) {
-        TanarokDBUtils.listAll()
+    public static void refreshTable(TableView<Tanar> table) {
+        TanarDBUtils.listAll()
                       .thenAccept(table::setItems)
                       .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
-    private static void handleAddButtonPress(TextField szemelyiField, TextField nevField, TextField kepzettsegField, Stage window, TableView<Tanar> table) {
-        TanarokDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegField.getText());
+    private static void handleAddButtonClick(TextField szemelyiField, TextField nevField, ComboBox<Kepzettseg> kepzettsegComboBox, Stage window, TableView<Tanar> table) {
+        TanarDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue().azonosito);
         window.hide();
-        refreshTanarokTable(table);
+        refreshTable(table);
     }
 
-    private static void handleDeleteButtonPress(TableView<Tanar> table, int index) {
+    private static void handleDeleteButtonClick(TableView<Tanar> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az tanárt?", () -> {
-            TanarokDBUtils.delete(table.getItems().get(index).szemelyiSzam);
-            refreshTanarokTable(table);
+            TanarDBUtils.delete(table.getItems().get(index).szemelyiSzam);
+            refreshTable(table);
         });
     }
 }

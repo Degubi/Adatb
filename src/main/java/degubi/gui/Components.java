@@ -3,15 +3,16 @@ package degubi.gui;
 import degubi.*;
 import java.util.*;
 import java.util.function.*;
+import java.util.regex.*;
 import javafx.application.*;
 import javafx.beans.binding.*;
+import javafx.beans.property.*;
 import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
-import javafx.scene.control.TableColumn.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
@@ -22,6 +23,8 @@ import javafx.util.converter.*;
 
 public final class Components {
     private static final Border tableBorder = new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
+    private static final Pattern numberPattern = Pattern.compile("\\d*");
+
     public static final ImageView dayIcon = new ImageView(new Image(Main.class.getResource("/assets/day.png").toString(), 32, 32, true, true));
     public static final ImageView nightIcon = new ImageView(new Image(Main.class.getResource("/assets/night.png").toString(), 32, 32, true, true));
 
@@ -75,6 +78,12 @@ public final class Components {
         return table;
     }
 
+    public static TextField newNumberTextField() {
+        var field = new TextField();
+        field.setTextFormatter(new TextFormatter<>(k -> numberPattern.matcher(k.getControlNewText()).matches() ? k : null));
+        return field;
+    }
+
     public static<T> TableColumn<T, Void> newButtonColumn(String buttonText, IntConsumer buttonIndexActionFunction) {
         var col = new TableColumn<T, Void>(buttonText);
         col.setStyle("-fx-alignment: CENTER;");
@@ -83,33 +92,29 @@ public final class Components {
         return col;
     }
 
-    public static<T> TableColumn<T, String> newStringColumn(String label, String property){
+    public static<T> TableColumn<T, Boolean> newBooleanColumn(String label, Function<T, SimpleBooleanProperty> valueSelector) {
+        var col = new TableColumn<T, Boolean>(label);
+        col.setMaxWidth(150);
+        col.setCellFactory(CheckBoxTableCell.forTableColumn(col));
+        col.setCellValueFactory(k -> valueSelector.apply(k.getValue()));
+        return col;
+    }
+
+    public static<T> TableColumn<T, String> newStringColumn(String label, String property) {
         var col = new TableColumn<T, String>(label);
         col.setStyle("-fx-alignment: CENTER;");
         col.setMaxWidth(150);
         col.setCellFactory(TextFieldTableCell.forTableColumn());
-        col.setCellValueFactory(new PropertyValueFactory<T, String>(property));
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
         return col;
     }
 
-    public static<T> TableColumn<T, String> newStringColumn(String label, String property, EventHandler<CellEditEvent<T, String>> onEditStoppedEvent){
-        var col = Components.<T>newStringColumn(label, property);
-        col.setOnEditCommit(onEditStoppedEvent);
-        return col;
-    }
-
-    public static<T> TableColumn<T, Number> newNumberColumn(String label, String property){
+    public static<T> TableColumn<T, Number> newNumberColumn(String label, String property) {
         var col = new TableColumn<T, Number>(label);
         col.setStyle("-fx-alignment: CENTER;");
         col.setMaxWidth(150);
         col.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
-        col.setCellValueFactory(new PropertyValueFactory<T, Number>(property));
-        return col;
-    }
-
-    public static<T> TableColumn<T, Number> newNumberColumn(String label, String property, EventHandler<CellEditEvent<T, Number>> onEditStoppedEvent){
-        var col = Components.<T>newNumberColumn(label, property);
-        col.setOnEditCommit(onEditStoppedEvent);
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
         return col;
     }
 
@@ -141,14 +146,14 @@ public final class Components {
         return label;
     }
 
-    public static<T> Tab newTab(String title, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> selectionEvent) {
+    public static<T> Tab newTab(String title, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
         var tab = new Tab(title, content);
         var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
 
         tab.setOnSelectionChanged(e -> {
             if(tab.isSelected()) {
                 Main.loadingLabel.setVisible(true);
-                selectionEvent.accept(content);
+                onSelectedDataRefresher.accept(content);
                 Main.searchFilterSelectorBox.setItems(filterComboBoxes);
                 Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
             }
