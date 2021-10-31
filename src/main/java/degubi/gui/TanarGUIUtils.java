@@ -11,8 +11,6 @@ public final class TanarGUIUtils {
     private TanarGUIUtils() {}
 
     public static void showEditorDialog(TableView<Tanar> table) {
-        var stage = new Stage();
-
         var szemelyiField = new TextField();
         var nevField = new TextField();
         var kepzettsegComboBox = new ComboBox<>(KepzettsegDBUtils.listAll().join());
@@ -22,6 +20,7 @@ public final class TanarGUIUtils {
                                         .or(Components.createEmptyComboBoxBinding(kepzettsegComboBox));
 
         var components = Components.newFormGridPane();
+        var stage = new Stage();
         components.add(Components.newLabel("Személyi:"), 0, 0);
         components.add(szemelyiField, 1, 0);
         components.add(Components.newLabel("Név:"), 0, 1);
@@ -47,8 +46,8 @@ public final class TanarGUIUtils {
 
     public static void refreshTable(TableView<Tanar> table) {
         TanarDBUtils.listAll()
-                      .thenAccept(table::setItems)
-                      .thenRun(() -> Main.loadingLabel.setVisible(false));
+                    .thenAccept(table::setItems)
+                    .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 

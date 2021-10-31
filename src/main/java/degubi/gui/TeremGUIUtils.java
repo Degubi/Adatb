@@ -11,8 +11,6 @@ public final class TeremGUIUtils {
     private TeremGUIUtils() {}
 
     public static void showEditorDialog(TableView<Terem> table) {
-        var stage = new Stage();
-
         var azonositoField = Components.newNumberTextField();
         var epuletField = Components.newNumberTextField();
         var ferohelyekField = Components.newNumberTextField();
@@ -22,6 +20,7 @@ public final class TeremGUIUtils {
                                         .or(Components.createEmptyFieldBinding(ferohelyekField));
 
         var components = Components.newFormGridPane();
+        var stage = new Stage();
         components.add(Components.newLabel("Azonosító:"), 0, 0);
         components.add(azonositoField, 1, 0);
         components.add(Components.newLabel("Épület:"), 0, 1);
@@ -39,10 +38,10 @@ public final class TeremGUIUtils {
     }
 
     public static TableView<Terem> createTable() {
-        return Components.<Terem>newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
-                                                 Components.newNumberColumn("Épület", "epulet"),
-                                                 Components.newNumberColumn("Férőhelyek Száma", "ferohelyekSzama"),
-                                                 Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
+        return Components.newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
+                                          Components.newNumberColumn("Épület", "epulet"),
+                                          Components.newNumberColumn("Férőhelyek Száma", "ferohelyekSzama"),
+                                          Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
     }
 
     public static void refreshTable(TableView<Terem> table) {

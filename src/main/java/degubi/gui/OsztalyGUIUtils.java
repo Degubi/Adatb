@@ -7,10 +7,10 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
 
-public final class KepzettsegGUIUtils {
-    private KepzettsegGUIUtils() {}
+public final class OsztalyGUIUtils {
+    private OsztalyGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Kepzettseg> table) {
+    public static void showEditorDialog(TableView<Osztaly> table) {
         var megnevezesField = new TextField();
         var okButtonBinding = Components.createEmptyFieldBinding(megnevezesField);
 
@@ -21,25 +21,25 @@ public final class KepzettsegGUIUtils {
         components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(megnevezesField, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Képzettség");
+        stage.setTitle("Új Osztály");
         stage.getScene().getRoot().setStyle(Components.windowTheme);
         stage.show();
     }
 
-    public static TableView<Kepzettseg> createTable() {
+    public static TableView<Osztaly> createTable() {
         return Components.newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
                                           Components.newStringColumn("Megnevezés", "megnevezes"));
     }
 
-    public static void refreshTable(TableView<Kepzettseg> table) {
-        KepzettsegDBUtils.listAll()
-                         .thenAccept(table::setItems)
-                         .thenRun(() -> Main.loadingLabel.setVisible(false));
+    public static void refreshTable(TableView<Osztaly> table) {
+        OsztalyDBUtils.listAll()
+                      .thenAccept(table::setItems)
+                      .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
-    private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Kepzettseg> table) {
-        KepzettsegDBUtils.add(megnevezesField.getText());
+    private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Osztaly> table) {
+        OsztalyDBUtils.add(megnevezesField.getText());
         window.hide();
         refreshTable(table);
     }

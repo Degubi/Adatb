@@ -134,6 +134,13 @@ public final class Components {
     }
 
     @SuppressWarnings("boxing")
+    public static BooleanBinding createFixedTextFieldLengthBinding(TextField field, int length) {
+        var binding = Bindings.createBooleanBinding(() -> field.getText().length() != length, field.textProperty());
+        field.styleProperty().bind(Bindings.when(binding).then(errorComponentStyle).otherwise(""));
+        return binding;
+    }
+
+    @SuppressWarnings("boxing")
     public static BooleanBinding createEmptyFieldBinding(TextField field) {
         var binding = Bindings.createBooleanBinding(() -> field.getText().isBlank(), field.textProperty());
         field.styleProperty().bind(Bindings.when(binding).then(errorComponentStyle).otherwise(""));

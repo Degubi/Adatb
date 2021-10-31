@@ -11,12 +11,6 @@ public final class Tanar {
     public final String nev;
     public final String kepzettseg;
 
-    public Tanar(String szemelyiSzam, String nev, String kepzettseg) {
-        this.szemelyiSzam = szemelyiSzam;
-        this.nev = nev;
-        this.kepzettseg = kepzettseg;
-    }
-
     public Tanar(ResultSet result) throws SQLException {
         this.szemelyiSzam = result.getString("szemelyiSzam");
         this.nev = result.getString("nev");

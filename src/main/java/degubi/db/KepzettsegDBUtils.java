@@ -1,8 +1,6 @@
 package degubi.db;
 
-import degubi.gui.*;
 import degubi.model.*;
-import java.sql.*;
 import java.util.concurrent.*;
 import javafx.collections.*;
 
@@ -18,16 +16,7 @@ public final class KepzettsegDBUtils {
     }
 
     public static void add(String megnevezes) {
-        var sql = String.format("INSERT INTO " + TABLE + " VALUES(NULL, '%s')", megnevezes);
-
-        DBUtils.useConnection(connection -> {
-            try(var statement = connection.createStatement()) {
-                statement.executeUpdate(sql);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                Components.showErrorDialog("SQL Hiba történt!");
-            }
-        });
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, '%s')", megnevezes));
     }
 
     private KepzettsegDBUtils() {}

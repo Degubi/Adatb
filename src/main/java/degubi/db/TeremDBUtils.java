@@ -1,8 +1,6 @@
 package degubi.db;
 
-import degubi.gui.*;
 import degubi.model.*;
-import java.sql.*;
 import java.util.concurrent.*;
 import javafx.collections.*;
 
@@ -19,16 +17,7 @@ public final class TeremDBUtils {
 
     @SuppressWarnings("boxing")
     public static void add(String azonosito, String ferohelyekSzama, String epulet, boolean vanEProjektor) {
-        var sql = String.format("INSERT INTO " + TABLE + " VALUES(%s, %s, %s, %d)", azonosito, ferohelyekSzama, epulet, vanEProjektor ? 1 : 0);
-
-        DBUtils.useConnection(connection -> {
-            try(var statement = connection.createStatement()) {
-                statement.executeUpdate(sql);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                Components.showErrorDialog("SQL Hiba történt!");
-            }
-        });
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(%s, %s, %s, %d)", azonosito, ferohelyekSzama, epulet, vanEProjektor ? 1 : 0));
     }
 
     private TeremDBUtils() {}

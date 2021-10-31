@@ -15,6 +15,8 @@ public final class Main extends Application {
     private static final String teachersTabLabel = "Tanárok";
     private static final String qualificationsTabLabel = "Képzettségek";
     private static final String roomsTabLabel = "Termek";
+    private static final String classesTabLabel = "Osztályok";
+    private static final String studentsTabLabel = "Diákok";
 
     public static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
     public static final Label loadingLabel = new Label("Töltés...");
@@ -24,14 +26,19 @@ public final class Main extends Application {
         var teachersTable = TanarGUIUtils.createTable();
         var qualificationsTable = KepzettsegGUIUtils.createTable();
         var roomsTable = TeremGUIUtils.createTable();
+        var classesTable = OsztalyGUIUtils.createTable();
+        var studentsTable = DiakGUIUtils.createTable();
+
         var teachersTab = Components.newTab(teachersTabLabel, teachersTable, Tanar.fieldMappings, TanarGUIUtils::refreshTable);
         var qualificationsTab = Components.newTab(qualificationsTabLabel, qualificationsTable, Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
         var roomsTab = Components.newTab(roomsTabLabel, roomsTable, Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var classesTab = Components.newTab(classesTabLabel, classesTable, Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
+        var studentsTab = Components.newTab(studentsTabLabel, studentsTable, Diak.fieldMappings, DiakGUIUtils::refreshTable);
 
         var searchTextField = new TextField();
         var darkModeSwitchButton = new Button(null, Components.dayIcon);
-        var tabPane = new TabPane(teachersTab, qualificationsTab, roomsTab);
-        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane, qualificationsTable, roomsTable, teachersTable));
+        var tabPane = new TabPane(teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
+        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane, qualificationsTable, roomsTable, teachersTable, studentsTable, classesTable));
 
         searchTextField.setPromptText("Keresés");
         searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(tabPane, searchTextField));
@@ -58,17 +65,15 @@ public final class Main extends Application {
     }
 
     private static void handleAddButtonClick(TabPane tabPane, TableView<Kepzettseg> qualificationsTable, TableView<Terem> roomsTable,
-                                             TableView<Tanar> teachersTable) {
+                                             TableView<Tanar> teachersTable, TableView<Diak> studentsTable, TableView<Osztaly> classesTable) {
 
-        var activeTabLabel = tabPane.getSelectionModel().getSelectedItem().getText();
-
-        if(activeTabLabel.equals(teachersTabLabel)) {
-            TanarGUIUtils.showEditorDialog(teachersTable);
-        }else if(activeTabLabel.equals(qualificationsTabLabel)) {
-            KepzettsegGUIUtils.showEditorDialog(qualificationsTable);
-        }else if(activeTabLabel.equals(roomsTabLabel)) {
-            TeremGUIUtils.showEditorDialog(roomsTable);
-        }
+        switch(tabPane.getSelectionModel().getSelectedItem().getText()) {
+            case teachersTabLabel:       TanarGUIUtils.showEditorDialog(teachersTable);            break;
+            case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog(qualificationsTable); break;
+            case roomsTabLabel:          TeremGUIUtils.showEditorDialog(roomsTable);               break;
+            case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(classesTable);           break;
+            case studentsTabLabel:       DiakGUIUtils.showEditorDialog(studentsTable);             break;
+        };
     }
 
     @SuppressWarnings("unchecked")

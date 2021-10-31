@@ -14,15 +14,6 @@ public final class Terem {
 
     private final SimpleBooleanProperty vanEProjektorProp;
 
-    public Terem(int azonosito, int epulet, int ferohelyekSzama, boolean vanEProjektor) {
-        this.azonosito = azonosito;
-        this.epulet = epulet;
-        this.ferohelyekSzama = ferohelyekSzama;
-        this.vanEProjektor = vanEProjektor;
-
-        this.vanEProjektorProp = new SimpleBooleanProperty(vanEProjektor);
-    }
-
     public Terem(ResultSet result) throws SQLException {
         this.azonosito = result.getInt("azonosito");
         this.epulet = result.getInt("epulet");
