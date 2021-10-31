@@ -1,2 +1,6 @@
 *.png
 *.dia~
+/target/
+/.settings/
+.project
+.classpath
