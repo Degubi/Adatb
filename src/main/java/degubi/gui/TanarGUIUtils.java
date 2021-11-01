@@ -10,7 +10,7 @@ import javafx.stage.*;
 public final class TanarGUIUtils {
     private TanarGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Tanar> table) {
+    public static void showEditorDialog(Tanar toEdit, TableView<Tanar> table) {
         var szemelyiField = new TextField();
         var nevField = new TextField();
         var kepzettsegComboBox = new ComboBox<>(KepzettsegDBUtils.listAll().join());
@@ -18,6 +18,13 @@ public final class TanarGUIUtils {
         var okButtonBinding = Components.createEmptyFieldBinding(szemelyiField)
                                         .or(Components.createEmptyFieldBinding(nevField))
                                         .or(Components.createEmptyComboBoxBinding(kepzettsegComboBox));
+        if(toEdit != null) {
+            szemelyiField.setText(toEdit.szemelyiSzam);
+            nevField.setText(toEdit.nev);
+            kepzettsegComboBox.setValue(toEdit.kepzettseg);
+
+            szemelyiField.setEditable(false);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
@@ -27,7 +34,8 @@ public final class TanarGUIUtils {
         components.add(nevField, 1, 1);
         components.add(Components.newLabel("Képzettség:"), 0, 2);
         components.add(kepzettsegComboBox, 1, 2);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(szemelyiField, nevField, kepzettsegComboBox, stage, table )), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(szemelyiField, nevField, kepzettsegComboBox, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Tanár");
@@ -36,9 +44,10 @@ public final class TanarGUIUtils {
     }
 
     public static TableView<Tanar> createTable() {
-        var table = Components.<Tanar>newTable(false, Components.newStringColumn("Személyi Szám", Tanar.fieldMappings),
-                                                      Components.newStringColumn("Név", Tanar.fieldMappings),
-                                                      Components.newStringColumn("Képzettség", Tanar.fieldMappings));
+        var table = Components.newTable(TanarGUIUtils::showEditorDialog,
+                                        Components.newStringColumn("Személyi Szám", Tanar.fieldMappings),
+                                        Components.newStringColumn("Név", Tanar.fieldMappings),
+                                        Components.newStringColumn("Képzettség", Tanar.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -57,8 +66,14 @@ public final class TanarGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(TextField szemelyiField, TextField nevField, ComboBox<Kepzettseg> kepzettsegComboBox, Stage window, TableView<Tanar> table) {
-        TanarDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue().azonosito);
+    private static void handleInteractButtonClick(TextField szemelyiField, TextField nevField, ComboBox<Kepzettseg> kepzettsegComboBox,
+                                                  Tanar toEdit, Stage window, TableView<Tanar> table) {
+        if(toEdit != null) {
+            TanarDBUtils.update(toEdit, nevField.getText(), kepzettsegComboBox.getValue());
+        }else {
+            TanarDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue());
+        }
+
         window.hide();
         refreshTable(table);
     }

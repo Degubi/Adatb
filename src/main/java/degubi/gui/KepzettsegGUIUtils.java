@@ -10,15 +10,20 @@ import javafx.stage.*;
 public final class KepzettsegGUIUtils {
     private KepzettsegGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Kepzettseg> table) {
+    public static void showEditorDialog(Kepzettseg toEdit, TableView<Kepzettseg> table) {
         var megnevezesField = new TextField();
         var okButtonBinding = Components.createEmptyFieldBinding(megnevezesField);
+
+        if(toEdit != null) {
+            megnevezesField.setText(toEdit.megnevezes);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
         components.add(Components.newLabel("Megnevezés:"), 0, 0);
         components.add(megnevezesField, 1, 0);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(megnevezesField, stage, table)), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(megnevezesField, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Képzettség");
@@ -27,8 +32,9 @@ public final class KepzettsegGUIUtils {
     }
 
     public static TableView<Kepzettseg> createTable() {
-        var table = Components.<Kepzettseg>newTable(false, Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
-                                                           Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
+        var table = Components.newTable(KepzettsegGUIUtils::showEditorDialog,
+                                        Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
+                                        Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -47,8 +53,13 @@ public final class KepzettsegGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Kepzettseg> table) {
-        KepzettsegDBUtils.add(megnevezesField.getText());
+    private static void handleInteractButtonClick(TextField megnevezesField, Kepzettseg toEdit, Stage window, TableView<Kepzettseg> table) {
+        if(toEdit != null) {
+            KepzettsegDBUtils.update(toEdit, megnevezesField.getText());
+        }else {
+            KepzettsegDBUtils.add(megnevezesField.getText());
+        }
+
         window.hide();
         refreshTable(table);
     }

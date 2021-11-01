@@ -64,12 +64,12 @@ public final class Main extends Application {
         var table = (TableView<?>) tabPane.getSelectionModel().getSelectedItem().getContent();
 
         switch(tabPane.getSelectionModel().getSelectedItem().getText()) {
-            case teachersTabLabel:       TanarGUIUtils.showEditorDialog((TableView<Tanar>) table);           break;
-            case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog((TableView<Kepzettseg>) table); break;
-            case roomsTabLabel:          TeremGUIUtils.showEditorDialog((TableView<Terem>) table);           break;
-            case classesTabLabel:        OsztalyGUIUtils.showEditorDialog((TableView<Osztaly>) table);       break;
-            case studentsTabLabel:       DiakGUIUtils.showEditorDialog((TableView<Diak>) table);             break;
-            case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog((TableView<Ora>) table);               break;
+            case teachersTabLabel:       TanarGUIUtils.showEditorDialog(null, (TableView<Tanar>) table);           break;
+            case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog(null, (TableView<Kepzettseg>) table); break;
+            case roomsTabLabel:          TeremGUIUtils.showEditorDialog(null, (TableView<Terem>) table);           break;
+            case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(null, (TableView<Osztaly>) table);       break;
+            case studentsTabLabel:       DiakGUIUtils.showEditorDialog(null, (TableView<Diak>) table);             break;
+            case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(null, (TableView<Ora>) table);               break;
         };
     }
 

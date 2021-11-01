@@ -9,7 +9,7 @@ public final class Tanar {
 
     public final String szemelyiSzam;
     public final String nev;
-    public final String kepzettseg;
+    public final Kepzettseg kepzettseg;
 
     public Tanar(ResultSet result) throws SQLException {
         this("", result);
@@ -20,7 +20,7 @@ public final class Tanar {
         this.nev = result.getString(prefix + "nev");
 
         if(prefix.equals("")) {
-            this.kepzettseg = result.getString(KepzettsegDBUtils.TABLE + ".megnevezes");
+            this.kepzettseg = new Kepzettseg(KepzettsegDBUtils.TABLE + '.', result);
         }else {
             this.kepzettseg = null;
         }
@@ -29,7 +29,7 @@ public final class Tanar {
     //FX-nek getterek
     public String getSzemelyiSzam() { return szemelyiSzam; }
     public String getNev() { return nev; }
-    public String getKepzettseg() { return kepzettseg; }
+    public String getKepzettseg() { return kepzettseg.megnevezes; }
 
     //FX-nek label
     @Override

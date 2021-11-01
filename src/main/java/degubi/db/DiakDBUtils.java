@@ -23,8 +23,15 @@ public final class DiakDBUtils {
     }
 
     @SuppressWarnings("boxing")
-    public static void add(String neptunKod, int osztalyAzonosito, String nev) {
-        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES('%s', %d, '%s')", neptunKod, osztalyAzonosito, nev));
+    public static void add(String neptunKod, Osztaly osztaly, String nev) {
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES('%s', %d, '%s')", neptunKod, osztaly.azonosito, nev));
+    }
+
+    @SuppressWarnings("boxing")
+    public static void update(Diak diak, Osztaly osztaly, String nev) {
+        var toUpdate = String.format("osztalyAzonosito = %d, nev = %s", osztaly.azonosito, nev);
+
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE neptunKod = " + diak.neptunKod);
     }
 
     public static void delete(Diak diak) {

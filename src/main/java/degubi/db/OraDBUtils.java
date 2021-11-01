@@ -35,24 +35,19 @@ public final class OraDBUtils {
     }
 
     @SuppressWarnings("boxing")
-    public static void add(int napIndex, String idopont, String nev, String tanarSzemelyiSzam, int osztalyAzonosito, int teremAzonosito) {
-        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(%d, '%s', '%s', '%s', %d, %d)", napIndex, idopont, nev, tanarSzemelyiSzam, osztalyAzonosito, teremAzonosito));
+    public static void add(int napIndex, String idopont, String nev, Tanar tanar, Osztaly osztaly, Terem terem) {
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, %d, '%s', '%s', '%s', %d, %d)", napIndex, idopont, nev, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito));
+    }
+
+    @SuppressWarnings("boxing")
+    public static void update(Ora ora, int napIndex, String idopont, String nev, Tanar tanar, Osztaly osztaly, Terem terem) {
+        var toUpdate = String.format("napIndex = %d, idopont = '%s', nev = '%s', tanarSzemelyiSzam = %d, osztalyAzonosito = %d, teremAzonosito = %d", napIndex, idopont, nev, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito);
+
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + ora.azonosito);
     }
 
     @SuppressWarnings("boxing")
     public static void delete(Ora ora) {
-        DBUtils.update(String.format("DELETE FROM " + TABLE + " WHERE napIndex = %d AND idopont = '%s'", getIndexFromNap(ora.nap), ora.idopont));
-    }
-
-
-    private static int getIndexFromNap(String nap) {
-        switch(nap) {
-            case "Hétfő"     : return 0;
-            case "Kedd"      : return 1;
-            case "Szerda"    : return 2;
-            case "Csütörtök" : return 3;
-            case "Péntek"    : return 4;
-            default: throw new IllegalArgumentException("Unknown day: " + nap);
-        }
+        DBUtils.update(String.format("DELETE FROM " + TABLE + " WHERE azonosito = %d", ora.azonosito));
     }
 }

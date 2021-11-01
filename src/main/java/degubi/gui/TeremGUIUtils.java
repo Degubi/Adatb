@@ -10,7 +10,7 @@ import javafx.stage.*;
 public final class TeremGUIUtils {
     private TeremGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Terem> table) {
+    public static void showEditorDialog(Terem toEdit, TableView<Terem> table) {
         var teremSzamField = Components.newNumberTextField();
         var epuletSzamField = Components.newNumberTextField();
         var ferohelyekField = Components.newNumberTextField();
@@ -18,6 +18,12 @@ public final class TeremGUIUtils {
         var okButtonBinding = Components.createEmptyFieldBinding(teremSzamField)
                                         .or(Components.createEmptyFieldBinding(epuletSzamField))
                                         .or(Components.createEmptyFieldBinding(ferohelyekField));
+        if(toEdit != null) {
+            teremSzamField.setText(String.valueOf(toEdit.teremSzam));
+            epuletSzamField.setText(String.valueOf(toEdit.epuletSzam));
+            ferohelyekField.setText(String.valueOf(toEdit.ferohelyekSzama));
+            vanEProjektorCheckBox.setSelected(toEdit.vanEProjektor);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
@@ -29,7 +35,8 @@ public final class TeremGUIUtils {
         components.add(ferohelyekField, 1, 2);
         components.add(Components.newLabel("Van-e Projektor:"), 0, 3);
         components.add(vanEProjektorCheckBox, 1, 3);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(teremSzamField, epuletSzamField, ferohelyekField, vanEProjektorCheckBox, stage, table)), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(teremSzamField, epuletSzamField, ferohelyekField, vanEProjektorCheckBox, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Terem");
@@ -38,11 +45,12 @@ public final class TeremGUIUtils {
     }
 
     public static TableView<Terem> createTable() {
-        var table = Components.newTable(false, Components.newNumberColumn("Azonosító", Terem.fieldMappings),
-                                               Components.newNumberColumn("Terem", Terem.fieldMappings),
-                                               Components.newNumberColumn("Épület", Terem.fieldMappings),
-                                               Components.newNumberColumn("Férőhelyek Száma", Terem.fieldMappings),
-                                               Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
+        var table = Components.newTable(TeremGUIUtils::showEditorDialog,
+                                        Components.newNumberColumn("Azonosító", Terem.fieldMappings),
+                                        Components.newNumberColumn("Terem", Terem.fieldMappings),
+                                        Components.newNumberColumn("Épület", Terem.fieldMappings),
+                                        Components.newNumberColumn("Férőhelyek Száma", Terem.fieldMappings),
+                                        Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -61,10 +69,14 @@ public final class TeremGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(TextField teremSzamField, TextField epuletSzamField, TextField ferohelyekField, CheckBox vanEProjektorCheckBox,
-                                             Stage window, TableView<Terem> table) {
+    private static void handleInteractButtonClick(TextField teremSzamField, TextField epuletSzamField, TextField ferohelyekField, CheckBox vanEProjektorCheckBox,
+                                                  Terem toEdit, Stage window, TableView<Terem> table) {
+        if(toEdit != null) {
+            TeremDBUtils.update(toEdit, teremSzamField.getText(), epuletSzamField.getText(), ferohelyekField.getText(), vanEProjektorCheckBox.isSelected());
+        }else {
+            TeremDBUtils.add(teremSzamField.getText(), epuletSzamField.getText(), ferohelyekField.getText(), vanEProjektorCheckBox.isSelected());
+        }
 
-        TeremDBUtils.add(teremSzamField.getText(), epuletSzamField.getText(), ferohelyekField.getText(), vanEProjektorCheckBox.isSelected());
         window.hide();
         refreshTable(table);
     }

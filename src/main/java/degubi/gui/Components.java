@@ -71,11 +71,20 @@ public final class Components {
     }
 
     @SafeVarargs
-    public static<T> TableView<T> newTable(boolean editable, TableColumn<T, ?>... columns) {
+    public static<T> TableView<T> newTable(BiConsumer<T, TableView<T>> onEditRequested, TableColumn<T, ?>... columns) {
         var table = new TableView<T>();
-        table.setEditable(editable);
+        table.setEditable(false);
         table.setBorder(tableBorder);
         table.getColumns().addAll(columns);
+        table.setOnMousePressed(e -> {
+            if(e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+                var selection = table.getSelectionModel().getSelectedItem();
+
+                if(selection != null) {
+                    onEditRequested.accept(selection, table);
+                }
+            }
+        });
         return table;
     }
 

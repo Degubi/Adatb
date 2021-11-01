@@ -10,15 +10,20 @@ import javafx.stage.*;
 public final class OsztalyGUIUtils {
     private OsztalyGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Osztaly> table) {
+    public static void showEditorDialog(Osztaly toEdit, TableView<Osztaly> table) {
         var megnevezesField = new TextField();
         var okButtonBinding = Components.createEmptyFieldBinding(megnevezesField);
+
+        if(toEdit != null) {
+            megnevezesField.setText(toEdit.megnevezes);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
         components.add(Components.newLabel("Megnevezés:"), 0, 0);
         components.add(megnevezesField, 1, 0);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(megnevezesField, stage, table)), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(megnevezesField, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Osztály");
@@ -27,8 +32,9 @@ public final class OsztalyGUIUtils {
     }
 
     public static TableView<Osztaly> createTable() {
-        var table = Components.<Osztaly>newTable(false, Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
-                                                        Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
+        var table = Components.newTable(OsztalyGUIUtils::showEditorDialog,
+                                        Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
+                                        Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -47,8 +53,13 @@ public final class OsztalyGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Osztaly> table) {
-        OsztalyDBUtils.add(megnevezesField.getText());
+    private static void handleInteractButtonClick(TextField megnevezesField, Osztaly toEdit, Stage window, TableView<Osztaly> table) {
+        if(toEdit != null) {
+            OsztalyDBUtils.update(toEdit, megnevezesField.getText());
+        }else {
+            OsztalyDBUtils.add(megnevezesField.getText());
+        }
+
         window.hide();
         refreshTable(table);
     }

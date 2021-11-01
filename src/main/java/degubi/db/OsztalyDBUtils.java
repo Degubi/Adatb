@@ -21,6 +21,12 @@ public final class OsztalyDBUtils {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, '%s')", megnevezes));
     }
 
+    public static void update(Osztaly osztaly, String megnevezes) {
+        var toUpdate = String.format("megnevezes = %s", megnevezes);
+
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + osztaly.azonosito);
+    }
+
     public static void delete(Osztaly osztaly) {
         DBUtils.update("DELETE FROM " + TABLE + " WHERE azonosito = " + osztaly.azonosito);
     }

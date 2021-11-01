@@ -21,6 +21,12 @@ public final class KepzettsegDBUtils {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, '%s')", megnevezes));
     }
 
+    public static void update(Kepzettseg kepzettseg, String megnevezes) {
+        var toUpdate = String.format("megnevezes = %s", megnevezes);
+
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + kepzettseg.azonosito);
+    }
+
     public static void delete(Kepzettseg kepzettseg) {
         DBUtils.update("DELETE FROM " + TABLE + " WHERE azonosito = " + kepzettseg.azonosito);
     }

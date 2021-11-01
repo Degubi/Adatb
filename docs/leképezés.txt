@@ -3,6 +3,6 @@ Képzettség(_azonosító_, megnevezés)
 Terem(_azonosító_, teremSzám, épületSzám, férőhelyekSzáma, van-e projektor)
 
 Tanár(_személyi_szám_, Képzettség._azonosító_, név)
-Diák(_neptun_kód_, Osztály._megnevezés_, név)
+Diák(_neptun_kód_, Osztály._azonosító_, név)
 
-Óra(_napIndex_, _időpont_, név, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)
+Óra(_azonosító_, napIndex, időpont, név, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)

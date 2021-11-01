@@ -10,7 +10,7 @@ import javafx.stage.*;
 public final class DiakGUIUtils {
     private DiakGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Diak> table) {
+    public static void showEditorDialog(Diak toEdit, TableView<Diak> table) {
         var neptunKodField = new TextField();
         var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAll().join());
         var nevField = new TextField();
@@ -18,6 +18,13 @@ public final class DiakGUIUtils {
         var okButtonBinding = Components.createFixedTextFieldLengthBinding(neptunKodField, 6)
                                         .or(Components.createEmptyFieldBinding(nevField))
                                         .or(Components.createEmptyComboBoxBinding(osztalyComboBox));
+        if(toEdit != null) {
+            neptunKodField.setText(toEdit.neptunKod);
+            osztalyComboBox.setValue(toEdit.osztaly);
+            nevField.setText(toEdit.nev);
+
+            neptunKodField.setEditable(false);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
@@ -27,7 +34,8 @@ public final class DiakGUIUtils {
         components.add(osztalyComboBox, 1, 1);
         components.add(Components.newLabel("Név:"), 0, 2);
         components.add(nevField, 1, 2);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(neptunKodField, osztalyComboBox, nevField, stage, table )), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(neptunKodField, osztalyComboBox, nevField, toEdit, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Diák");
@@ -36,9 +44,10 @@ public final class DiakGUIUtils {
     }
 
     public static TableView<Diak> createTable() {
-        var table = Components.<Diak>newTable(false, Components.newStringColumn("Neptun Kód", Diak.fieldMappings),
-                                                     Components.newStringColumn("Név", Diak.fieldMappings),
-                                                     Components.newStringColumn("Osztály", Diak.fieldMappings));
+        var table = Components.newTable(DiakGUIUtils::showEditorDialog,
+                                        Components.newStringColumn("Neptun Kód", Diak.fieldMappings),
+                                        Components.newStringColumn("Név", Diak.fieldMappings),
+                                        Components.newStringColumn("Osztály", Diak.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -57,8 +66,14 @@ public final class DiakGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(TextField neptunKodField, ComboBox<Osztaly> osztalyComboBox, TextField nevField, Stage window, TableView<Diak> table) {
-        DiakDBUtils.add(neptunKodField.getText(), osztalyComboBox.getValue().azonosito, nevField.getText());
+    private static void handleInteractButtonClick(TextField neptunKodField, ComboBox<Osztaly> osztalyComboBox, TextField nevField,
+                                                  Diak toEdit, Stage window, TableView<Diak> table) {
+        if(toEdit != null) {
+            DiakDBUtils.update(toEdit, osztalyComboBox.getValue(), nevField.getText());
+        }else{
+            DiakDBUtils.add(neptunKodField.getText(), osztalyComboBox.getValue(), nevField.getText());
+        }
+
         window.hide();
         refreshTable(table);
     }

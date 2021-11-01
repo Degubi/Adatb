@@ -11,7 +11,7 @@ import javafx.stage.*;
 public final class OraGUIUtils {
     private OraGUIUtils() {}
 
-    public static void showEditorDialog(TableView<Ora> table) {
+    public static void showEditorDialog(Ora toEdit, TableView<Ora> table) {
         var napComboBox = new ComboBox<>(FXCollections.observableArrayList("Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"));
         var idopontField = new TextField();
         var nevField = new TextField();
@@ -25,6 +25,14 @@ public final class OraGUIUtils {
                                         .or(Components.createEmptyComboBoxBinding(osztalyComboBox))
                                         .or(Components.createEmptyComboBoxBinding(teremComboBox))
                                         .or(Components.createEmptyComboBoxBinding(tanarComboBox));
+        if(toEdit != null) {
+            napComboBox.setValue(toEdit.nap);
+            idopontField.setText(toEdit.idopont);
+            nevField.setText(toEdit.nev);
+            osztalyComboBox.setValue(toEdit.osztaly);
+            teremComboBox.setValue(toEdit.terem);
+            tanarComboBox.setValue(toEdit.tanar);
+        }
 
         var components = Components.newFormGridPane();
         var stage = new Stage();
@@ -40,7 +48,7 @@ public final class OraGUIUtils {
         components.add(teremComboBox, 1, 4);
         components.add(Components.newLabel("Tanár"), 0, 5);
         components.add(tanarComboBox, 1, 5);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, stage, table )), 0, 6, 2, 1);
+        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleInteractButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Óra");
@@ -49,12 +57,14 @@ public final class OraGUIUtils {
     }
 
     public static TableView<Ora> createTable() {
-        var table = Components.<Ora>newTable(false, Components.newStringColumn("Nap", Ora.fieldMappings),
-                                                    Components.newStringColumn("Időpont", Ora.fieldMappings),
-                                                    Components.newStringColumn("Név", Ora.fieldMappings),
-                                                    Components.newStringColumn("Osztály", Ora.fieldMappings),
-                                                    Components.newStringColumn("Terem", Ora.fieldMappings),
-                                                    Components.newStringColumn("Tanár", Ora.fieldMappings));
+        var table = Components.newTable(OraGUIUtils::showEditorDialog,
+                                        Components.newNumberColumn("Azonosító", Ora.fieldMappings),
+                                        Components.newStringColumn("Nap", Ora.fieldMappings),
+                                        Components.newStringColumn("Időpont", Ora.fieldMappings),
+                                        Components.newStringColumn("Név", Ora.fieldMappings),
+                                        Components.newStringColumn("Osztály", Ora.fieldMappings),
+                                        Components.newStringColumn("Terem", Ora.fieldMappings),
+                                        Components.newStringColumn("Tanár", Ora.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;
@@ -73,11 +83,16 @@ public final class OraGUIUtils {
     }
 
 
-    private static void handleAddButtonClick(ComboBox<String> napComboBox, TextField idopontField, TextField nevField, ComboBox<Osztaly> osztalyComboBox,
-                                             ComboBox<Terem> teremComboBox, ComboBox<Tanar> tanarComboBox, Stage window, TableView<Ora> table) {
+    private static void handleInteractButtonClick(ComboBox<String> napComboBox, TextField idopontField, TextField nevField, ComboBox<Osztaly> osztalyComboBox,
+                                                  ComboBox<Terem> teremComboBox, ComboBox<Tanar> tanarComboBox, Ora toEdit, Stage window, TableView<Ora> table) {
+        if(toEdit != null) {
+            OraDBUtils.update(toEdit, napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), nevField.getText(),
+                              tanarComboBox.getValue(), osztalyComboBox.getValue(), teremComboBox.getValue());
+        }else {
+            OraDBUtils.add(napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), nevField.getText(),
+                           tanarComboBox.getValue(), osztalyComboBox.getValue(), teremComboBox.getValue());
+        }
 
-        OraDBUtils.add(napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), nevField.getText(),
-                       tanarComboBox.getValue().szemelyiSzam, osztalyComboBox.getValue().azonosito, teremComboBox.getValue().azonosito);
         window.hide();
         refreshTable(table);
     }

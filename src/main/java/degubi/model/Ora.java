@@ -5,8 +5,9 @@ import java.sql.*;
 import java.util.*;
 
 public final class Ora {
-    public static final Map<String, String> fieldMappings = Map.of("Nap", "nap", "Időpont", "idopont", "Név", "nev", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
+    public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Név", "nev", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
 
+    public final int azonosito;
     public final String nap;
     public final String idopont;
     public final String nev;
@@ -15,6 +16,7 @@ public final class Ora {
     public final Terem terem;
 
     public Ora(ResultSet result) throws SQLException {
+        this.azonosito = result.getInt("azonosito");
         this.nap = getNapFromIndex(result.getInt("napIndex"));
         this.idopont = result.getString("idopont");
         this.nev = result.getString("nev");
@@ -37,6 +39,7 @@ public final class Ora {
 
 
     //FX-nek getterek
+    public int getAzonosito() { return azonosito; }
     public String getNap() { return nap; }
     public String getIdopont() { return idopont; }
     public String getNev() { return nev; }
