@@ -66,6 +66,12 @@ public final class OraGUIUtils {
                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Ora> table) {
+        OraDBUtils.listFiltered(Ora.fieldMappings.get(fieldName), value)
+                  .thenAccept(table::setItems)
+                  .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(ComboBox<String> napComboBox, TextField idopontField, TextField nevField, ComboBox<Osztaly> osztalyComboBox,
                                              ComboBox<Terem> teremComboBox, ComboBox<Tanar> tanarComboBox, Stage window, TableView<Ora> table) {

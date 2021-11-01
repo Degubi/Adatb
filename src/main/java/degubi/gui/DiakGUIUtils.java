@@ -50,6 +50,12 @@ public final class DiakGUIUtils {
                    .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Diak> table) {
+        DiakDBUtils.listFiltered(Diak.fieldMappings.get(fieldName), value)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(TextField neptunKodField, ComboBox<Osztaly> osztalyComboBox, TextField nevField, Stage window, TableView<Diak> table) {
         DiakDBUtils.add(neptunKodField.getText(), osztalyComboBox.getValue().azonosito, nevField.getText());

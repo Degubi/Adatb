@@ -22,12 +22,12 @@ final class DBUtils {
     }
 
     public static<T> CompletableFuture<ObservableList<T>> list(String sql, ItemCreator<T> resultElementCreator) {
+        if(LOG_SQL_QUERIES) {
+            System.out.println("Listing with query: \"" + sql + "\"");
+        }
+
         return CompletableFuture.supplyAsync(() -> {
             var result = new ArrayList<T>();
-
-            if(LOG_SQL_QUERIES) {
-                System.out.println("Listing with query: \"" + sql + "\"");
-            }
 
             DBUtils.useStatement(statement -> {
                 try(var resultSet = statement.executeQuery(sql)) {
@@ -45,9 +45,11 @@ final class DBUtils {
     }
 
     public static void update(String sql) {
-        DBUtils.useStatement(statement -> {
+        if(LOG_SQL_QUERIES) {
             System.out.println("Updating with query: \"" + sql + "\"");
+        }
 
+        DBUtils.useStatement(statement -> {
             try {
                 statement.executeUpdate(sql);
             } catch (SQLException e) {

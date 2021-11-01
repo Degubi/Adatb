@@ -50,6 +50,12 @@ public final class TeremGUIUtils {
                     .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Terem> table) {
+        TeremDBUtils.listFiltered(Terem.fieldMappings.get(fieldName), value)
+                    .thenAccept(table::setItems)
+                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(TextField azonositoField, TextField epuletField, TextField ferohelyekField, CheckBox vanEProjektorCheckBox,
                                              Stage window, TableView<Terem> table) {

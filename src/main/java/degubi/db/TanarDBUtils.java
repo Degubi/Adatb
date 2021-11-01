@@ -7,13 +7,19 @@ import javafx.collections.*;
 public final class TanarDBUtils {
     public static final String TABLE = "tanar";
 
+    private static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " + KepzettsegDBUtils.TABLE + ".* FROM " + TABLE +
+                                                   " INNER JOIN " + KepzettsegDBUtils.TABLE +
+                                                   " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito";
+
     public static CompletableFuture<ObservableList<Tanar>> listAll() {
-        return DBUtils.list("SELECT " + TABLE + ".*, " + KepzettsegDBUtils.TABLE + ".* FROM " + TABLE +
-                            " INNER JOIN " + KepzettsegDBUtils.TABLE + " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito", Tanar::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Tanar::new);
     }
 
     public static CompletableFuture<ObservableList<Tanar>> listFiltered(String field, String value) {
-        return DBUtils.list(String.format("SELECT * FROM " + TABLE + " WHERE %s LIKE '%%%s%%'", field, value), Tanar::new);
+        var tableToFilterIn = field.equals("kepzettseg") ? KepzettsegDBUtils.TABLE : TABLE;
+        var fieldToCheck = field.equals("kepzettseg") ? "megnevezes" : field;
+
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Tanar::new);
     }
 
     @SuppressWarnings("boxing")

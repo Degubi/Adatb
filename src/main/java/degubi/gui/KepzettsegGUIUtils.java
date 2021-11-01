@@ -37,6 +37,12 @@ public final class KepzettsegGUIUtils {
                          .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Kepzettseg> table) {
+        KepzettsegDBUtils.listFiltered(Kepzettseg.fieldMappings.get(fieldName), value)
+                         .thenAccept(table::setItems)
+                         .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Kepzettseg> table) {
         KepzettsegDBUtils.add(megnevezesField.getText());

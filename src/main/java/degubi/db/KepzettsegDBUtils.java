@@ -7,12 +7,14 @@ import javafx.collections.*;
 public final class KepzettsegDBUtils {
     public static final String TABLE = "kepzettseg";
 
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE;
+
     public static CompletableFuture<ObservableList<Kepzettseg>> listAll() {
-        return DBUtils.list("SELECT * FROM " + TABLE, Kepzettseg::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Kepzettseg::new);
     }
 
     public static CompletableFuture<ObservableList<Kepzettseg>> listFiltered(String field, String value) {
-        return DBUtils.list(String.format("SELECT * FROM " + TABLE + " WHERE %s LIKE '%%%s%%'", field, value), Kepzettseg::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Kepzettseg::new);
     }
 
     public static void add(String megnevezes) {

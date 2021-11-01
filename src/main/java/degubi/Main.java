@@ -1,6 +1,5 @@
 package degubi;
 
-import degubi.db.*;
 import degubi.gui.*;
 import degubi.model.*;
 import javafx.application.*;
@@ -24,24 +23,17 @@ public final class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        var teachersTable = TanarGUIUtils.createTable();
-        var qualificationsTable = KepzettsegGUIUtils.createTable();
-        var roomsTable = TeremGUIUtils.createTable();
-        var classesTable = OsztalyGUIUtils.createTable();
-        var studentsTable = DiakGUIUtils.createTable();
-        var fullTimetableTable = OraGUIUtils.createTable();
-
-        var teachersTab = Components.newTab(teachersTabLabel, teachersTable, Tanar.fieldMappings, TanarGUIUtils::refreshTable);
-        var qualificationsTab = Components.newTab(qualificationsTabLabel, qualificationsTable, Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
-        var roomsTab = Components.newTab(roomsTabLabel, roomsTable, Terem.fieldMappings, TeremGUIUtils::refreshTable);
-        var classesTab = Components.newTab(classesTabLabel, classesTable, Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
-        var studentsTab = Components.newTab(studentsTabLabel, studentsTable, Diak.fieldMappings, DiakGUIUtils::refreshTable);
-        var fullTimetableTab = Components.newTab(fullTimetableTabLabel, fullTimetableTable, Ora.fieldMappings, OraGUIUtils::refreshTable);
+        var teachersTab = Components.newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
+        var qualificationsTab = Components.newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
+        var roomsTab = Components.newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var classesTab = Components.newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
+        var studentsTab = Components.newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
+        var fullTimetableTab = Components.newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
 
         var searchTextField = new TextField();
         var darkModeSwitchButton = new Button(null, Components.dayIcon);
         var tabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
-        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane, qualificationsTable, roomsTable, fullTimetableTable, teachersTable, studentsTable, classesTable));
+        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane));
 
         searchTextField.setPromptText("Keresés");
         searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(tabPane, searchTextField));
@@ -67,34 +59,47 @@ public final class Main extends Application {
         switchButton.setGraphic(isDay ? Components.nightIcon : Components.dayIcon);
     }
 
-    private static void handleAddButtonClick(TabPane tabPane, TableView<Kepzettseg> qualificationsTable, TableView<Terem> roomsTable, TableView<Ora> fullTimetableTable,
-                                             TableView<Tanar> teachersTable, TableView<Diak> studentsTable, TableView<Osztaly> classesTable) {
+    @SuppressWarnings("unchecked")
+    private static void handleAddButtonClick(TabPane tabPane) {
+        var table = (TableView<?>) tabPane.getSelectionModel().getSelectedItem().getContent();
 
         switch(tabPane.getSelectionModel().getSelectedItem().getText()) {
-            case teachersTabLabel:       TanarGUIUtils.showEditorDialog(teachersTable);            break;
-            case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog(qualificationsTable); break;
-            case roomsTabLabel:          TeremGUIUtils.showEditorDialog(roomsTable);               break;
-            case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(classesTable);           break;
-            case studentsTabLabel:       DiakGUIUtils.showEditorDialog(studentsTable);             break;
-            case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(fullTimetableTable);         break;
+            case teachersTabLabel:       TanarGUIUtils.showEditorDialog((TableView<Tanar>) table);           break;
+            case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog((TableView<Kepzettseg>) table); break;
+            case roomsTabLabel:          TeremGUIUtils.showEditorDialog((TableView<Terem>) table);           break;
+            case classesTabLabel:        OsztalyGUIUtils.showEditorDialog((TableView<Osztaly>) table);       break;
+            case studentsTabLabel:       DiakGUIUtils.showEditorDialog((TableView<Diak>) table);             break;
+            case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog((TableView<Ora>) table);               break;
         };
     }
 
-    @SuppressWarnings("unchecked")
     private static void handleSearchFieldTyping(TabPane tabPane, TextField searchTextField) {
+        loadingLabel.setVisible(true);
+
         var searchedText = searchTextField.getText();
+        var searchedFieldName = searchFilterSelectorBox.getValue();
         var activeTabLabel = tabPane.getSelectionModel().getSelectedItem().getText();
         var selectedTable = (TableView<?>) tabPane.getSelectionModel().getSelectedItem().getContent();
 
-        loadingLabel.setVisible(true);
+        getSearchFieldChangeHandler(activeTabLabel, searchedText.isBlank(), searchedFieldName, searchedText, selectedTable).run();
+    }
 
-        if(activeTabLabel.equals(teachersTabLabel)) {
-            var teachersTable = (TableView<Tanar>) selectedTable;
-            var tanarokSource = !searchedText.isBlank() ? TanarDBUtils.listFiltered(Tanar.fieldMappings.get(searchFilterSelectorBox.getValue()), searchedText)
-                                                        : TanarDBUtils.listAll();
-
-            tanarokSource.thenAccept(teachersTable::setItems)
-                         .thenRun(() -> Main.loadingLabel.setVisible(false));
+    @SuppressWarnings("unchecked")
+    private static Runnable getSearchFieldChangeHandler(String activeTabLabel, boolean isEmpty, String field, String value, TableView<?> table) {
+        switch(activeTabLabel) {
+            case teachersTabLabel:       return isEmpty ? () -> TanarGUIUtils.refreshTable((TableView<Tanar>) table)
+                                                        : () -> TanarGUIUtils.refreshFilteredTable(field, value, (TableView<Tanar>) table);
+            case roomsTabLabel:          return isEmpty ? () -> TeremGUIUtils.refreshTable((TableView<Terem>) table)
+                                                        : () -> TeremGUIUtils.refreshFilteredTable(field, value, (TableView<Terem>) table);
+            case qualificationsTabLabel: return isEmpty ? () -> KepzettsegGUIUtils.refreshTable((TableView<Kepzettseg>) table)
+                                                        : () -> KepzettsegGUIUtils.refreshFilteredTable(field, value, (TableView<Kepzettseg>) table);
+            case classesTabLabel:        return isEmpty ? () -> OsztalyGUIUtils.refreshTable((TableView<Osztaly>) table)
+                                                        : () -> OsztalyGUIUtils.refreshFilteredTable(field, value, (TableView<Osztaly>) table);
+            case studentsTabLabel:       return isEmpty ? () -> DiakGUIUtils.refreshTable((TableView<Diak>) table)
+                                                        : () -> DiakGUIUtils.refreshFilteredTable(field, value, (TableView<Diak>) table);
+            case fullTimetableTabLabel:  return isEmpty ? () -> OraGUIUtils.refreshTable((TableView<Ora>) table)
+                                                        : () -> OraGUIUtils.refreshFilteredTable(field, value, (TableView<Ora>) table);
+            default: return () -> {};
         }
     }
 

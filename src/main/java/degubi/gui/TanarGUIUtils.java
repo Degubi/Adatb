@@ -50,6 +50,12 @@ public final class TanarGUIUtils {
                     .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Tanar> table) {
+        TanarDBUtils.listFiltered(Tanar.fieldMappings.get(fieldName), value)
+                    .thenAccept(table::setItems)
+                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(TextField szemelyiField, TextField nevField, ComboBox<Kepzettseg> kepzettsegComboBox, Stage window, TableView<Tanar> table) {
         TanarDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue().azonosito);

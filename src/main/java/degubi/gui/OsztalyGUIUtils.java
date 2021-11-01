@@ -37,6 +37,12 @@ public final class OsztalyGUIUtils {
                       .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void refreshFilteredTable(String fieldName, String value, TableView<Osztaly> table) {
+        OsztalyDBUtils.listFiltered(Osztaly.fieldMappings.get(fieldName), value)
+                      .thenAccept(table::setItems)
+                      .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
 
     private static void handleAddButtonClick(TextField megnevezesField, Stage window, TableView<Osztaly> table) {
         OsztalyDBUtils.add(megnevezesField.getText());
