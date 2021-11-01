@@ -27,8 +27,11 @@ public final class OsztalyGUIUtils {
     }
 
     public static TableView<Osztaly> createTable() {
-        return Components.newTable(false, Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
-                                          Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
+        var table = Components.<Osztaly>newTable(false, Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
+                                                        Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
+
+        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
+        return table;
     }
 
     public static void refreshTable(TableView<Osztaly> table) {
@@ -48,5 +51,12 @@ public final class OsztalyGUIUtils {
         OsztalyDBUtils.add(megnevezesField.getText());
         window.hide();
         refreshTable(table);
+    }
+
+    private static void handleDeleteButtonClick(TableView<Osztaly> table, int index) {
+        Components.showConfirmation("Biztos törlöd ezt az osztályt?", () -> {
+            OsztalyDBUtils.delete(table.getItems().get(index));
+            refreshTable(table);
+        });
     }
 }

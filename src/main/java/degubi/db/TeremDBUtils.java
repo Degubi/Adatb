@@ -18,8 +18,12 @@ public final class TeremDBUtils {
     }
 
     @SuppressWarnings("boxing")
-    public static void add(String azonosito, String ferohelyekSzama, String epulet, boolean vanEProjektor) {
-        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(%s, %s, %s, %d)", azonosito, ferohelyekSzama, epulet, vanEProjektor ? 1 : 0));
+    public static void add(String teremSzam, String epuletSzam, String ferohelyekSzama, boolean vanEProjektor) {
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, %s, %s, %s, %d)", teremSzam, epuletSzam, ferohelyekSzama, vanEProjektor ? 1 : 0));
+    }
+
+    public static void delete(Terem terem) {
+        DBUtils.update("DELETE FROM " + TABLE + " WHERE azonosito = " + terem.azonosito);
     }
 
     private TeremDBUtils() {}

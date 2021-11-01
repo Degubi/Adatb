@@ -21,5 +21,9 @@ public final class KepzettsegDBUtils {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, '%s')", megnevezes));
     }
 
+    public static void delete(Kepzettseg kepzettseg) {
+        DBUtils.update("DELETE FROM " + TABLE + " WHERE azonosito = " + kepzettseg.azonosito);
+    }
+
     private KepzettsegDBUtils() {}
 }

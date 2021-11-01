@@ -27,8 +27,8 @@ public final class TanarDBUtils {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES('%s', '%s', %d)", szemelyi, nev, kepzettsegAzonosito));
     }
 
-    public static void delete(String szemelyi) {
-        DBUtils.update("DELETE FROM " + TABLE + " WHERE szemelyiSzam = '" + szemelyi + "'");
+    public static void delete(Tanar tanar) {
+        DBUtils.update("DELETE FROM " + TABLE + " WHERE szemelyiSzam = '" + tanar.szemelyiSzam + "'");
     }
 
     private TanarDBUtils() {}

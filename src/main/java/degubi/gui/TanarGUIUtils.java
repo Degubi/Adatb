@@ -65,7 +65,7 @@ public final class TanarGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Tanar> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az tanárt?", () -> {
-            TanarDBUtils.delete(table.getItems().get(index).szemelyiSzam);
+            TanarDBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

@@ -1,6 +1,6 @@
 Osztály(_azonosító_, megnevezés)
 Képzettség(_azonosító_, megnevezés)
-Terem(_azonosító_, férőhelyekSzáma, épületSzám, van-e projektor)
+Terem(_azonosító_, teremSzám, épületSzám, férőhelyekSzáma, van-e projektor)
 
 Tanár(_személyi_szám_, Képzettség._azonosító_, név)
 Diák(_neptun_kód_, Osztály._megnevezés_, név)

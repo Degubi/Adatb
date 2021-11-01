@@ -38,4 +38,21 @@ public final class OraDBUtils {
     public static void add(int napIndex, String idopont, String nev, String tanarSzemelyiSzam, int osztalyAzonosito, int teremAzonosito) {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(%d, '%s', '%s', '%s', %d, %d)", napIndex, idopont, nev, tanarSzemelyiSzam, osztalyAzonosito, teremAzonosito));
     }
+
+    @SuppressWarnings("boxing")
+    public static void delete(Ora ora) {
+        DBUtils.update(String.format("DELETE FROM " + TABLE + " WHERE napIndex = %d AND idopont = '%s'", getIndexFromNap(ora.nap), ora.idopont));
+    }
+
+
+    private static int getIndexFromNap(String nap) {
+        switch(nap) {
+            case "Hétfő"     : return 0;
+            case "Kedd"      : return 1;
+            case "Szerda"    : return 2;
+            case "Csütörtök" : return 3;
+            case "Péntek"    : return 4;
+            default: throw new IllegalArgumentException("Unknown day: " + nap);
+        }
+    }
 }

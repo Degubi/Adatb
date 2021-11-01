@@ -43,7 +43,7 @@ public final class OraGUIUtils {
         components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Tanár");
+        stage.setTitle("Új Óra");
         stage.getScene().getRoot().setStyle(Components.windowTheme);
         stage.show();
     }
@@ -83,9 +83,9 @@ public final class OraGUIUtils {
     }
 
     private static void handleDeleteButtonClick(TableView<Ora> table, int index) {
-        /*Components.showConfirmation("Biztos törlöd ezt az órát?", () -> {
-            OraDBUtils.delete(table.getItems().get(index).szemelyiSzam);
+        Components.showConfirmation("Biztos törlöd ezt az órát?", () -> {
+            OraDBUtils.delete(table.getItems().get(index));
             refreshTable(table);
-        });*/
+        });
     }
 }

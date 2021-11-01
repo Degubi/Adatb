@@ -27,8 +27,8 @@ public final class DiakDBUtils {
         DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES('%s', %d, '%s')", neptunKod, osztalyAzonosito, nev));
     }
 
-    public static void delete(String neptunKod) {
-        DBUtils.update("DELETE FROM " + TABLE + " WHERE neptunKod = '" + neptunKod + "'");
+    public static void delete(Diak diak) {
+        DBUtils.update("DELETE FROM " + TABLE + " WHERE neptunKod = '" + diak.neptunKod + "'");
     }
 
     private DiakDBUtils() {}

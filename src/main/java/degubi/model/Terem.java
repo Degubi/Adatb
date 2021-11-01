@@ -5,10 +5,11 @@ import java.util.*;
 import javafx.beans.property.*;
 
 public final class Terem {
-    public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Épület", "epulet", "Férőhelyek Száma", "ferohelyekSzama", "Van-E Projektor", "vanEProjektor");
+    public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Épület", "epuletSzam", "Terem", "teremSzam", "Férőhelyek Száma", "ferohelyekSzama", "Van-E Projektor", "vanEProjektor");
 
     public final int azonosito;
-    public final int epulet;
+    public final int teremSzam;
+    public final int epuletSzam;
     public final int ferohelyekSzama;
     public final boolean vanEProjektor;
 
@@ -20,7 +21,8 @@ public final class Terem {
 
     public Terem(String prefix, ResultSet result) throws SQLException {
         this.azonosito = result.getInt(prefix + "azonosito");
-        this.epulet = result.getInt(prefix + "epulet");
+        this.teremSzam = result.getInt(prefix + "teremSzam");
+        this.epuletSzam = result.getInt(prefix + "epuletSzam");
         this.ferohelyekSzama = result.getInt(prefix + "ferohelyekSzama");
         this.vanEProjektor = result.getBoolean(prefix + "vanEProjektor");
 
@@ -29,13 +31,14 @@ public final class Terem {
 
     //FX-nek getterek
     public int getAzonosito() { return azonosito; }
+    public int getTeremSzam() { return teremSzam; }
+    public int getEpuletSzam() { return epuletSzam; }
     public int getFerohelyekSzama() { return ferohelyekSzama; }
-    public int getEpulet() { return epulet; }
     public SimpleBooleanProperty getVanEProjektor() { return vanEProjektorProp; }
 
     //FX-nek label
     @Override
     public String toString() {
-        return epulet + ". épület " + azonosito + ". terem";
+        return epuletSzam + ". épület " + teremSzam + ". terem";
     }
 }

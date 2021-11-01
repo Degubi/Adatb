@@ -27,8 +27,11 @@ public final class KepzettsegGUIUtils {
     }
 
     public static TableView<Kepzettseg> createTable() {
-        return Components.newTable(false, Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
-                                          Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
+        var table = Components.<Kepzettseg>newTable(false, Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
+                                                           Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
+
+        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
+        return table;
     }
 
     public static void refreshTable(TableView<Kepzettseg> table) {
@@ -48,5 +51,12 @@ public final class KepzettsegGUIUtils {
         KepzettsegDBUtils.add(megnevezesField.getText());
         window.hide();
         refreshTable(table);
+    }
+
+    private static void handleDeleteButtonClick(TableView<Kepzettseg> table, int index) {
+        Components.showConfirmation("Biztos törlöd ezt az képzettséget?", () -> {
+            KepzettsegDBUtils.delete(table.getItems().get(index));
+            refreshTable(table);
+        });
     }
 }

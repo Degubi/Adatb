@@ -30,7 +30,7 @@ public final class DiakGUIUtils {
         components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleAddButtonClick(neptunKodField, osztalyComboBox, nevField, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Tanár");
+        stage.setTitle("Új Diák");
         stage.getScene().getRoot().setStyle(Components.windowTheme);
         stage.show();
     }
@@ -65,7 +65,7 @@ public final class DiakGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Diak> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az diákot?", () -> {
-            DiakDBUtils.delete(table.getItems().get(index).neptunKod);
+            DiakDBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }
