@@ -24,6 +24,7 @@ import javafx.util.converter.*;
 public final class Components {
     private static final Border tableBorder = new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
     private static final Pattern numberPattern = Pattern.compile("\\d*");
+    private static final Pattern timePattern = Pattern.compile("^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$");
 
     public static final ImageView dayIcon = new ImageView(new Image(Main.class.getResource("/assets/day.png").toString(), 32, 32, true, true));
     public static final ImageView nightIcon = new ImageView(new Image(Main.class.getResource("/assets/night.png").toString(), 32, 32, true, true));
@@ -100,21 +101,21 @@ public final class Components {
         return col;
     }
 
-    public static<T> TableColumn<T, String> newStringColumn(String label, String property) {
+    public static<T> TableColumn<T, String> newStringColumn(String label, Map<String, String> fieldMappings) {
         var col = new TableColumn<T, String>(label);
         col.setStyle("-fx-alignment: CENTER;");
         col.setMaxWidth(150);
         col.setCellFactory(TextFieldTableCell.forTableColumn());
-        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setCellValueFactory(new PropertyValueFactory<>(fieldMappings.get(label)));
         return col;
     }
 
-    public static<T> TableColumn<T, Number> newNumberColumn(String label, String property) {
+    public static<T> TableColumn<T, Number> newNumberColumn(String label, Map<String, String> fieldMappings) {
         var col = new TableColumn<T, Number>(label);
         col.setStyle("-fx-alignment: CENTER;");
         col.setMaxWidth(150);
         col.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
-        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setCellValueFactory(new PropertyValueFactory<>(fieldMappings.get(label)));
         return col;
     }
 
@@ -143,6 +144,13 @@ public final class Components {
     @SuppressWarnings("boxing")
     public static BooleanBinding createEmptyFieldBinding(TextField field) {
         var binding = Bindings.createBooleanBinding(() -> field.getText().isBlank(), field.textProperty());
+        field.styleProperty().bind(Bindings.when(binding).then(errorComponentStyle).otherwise(""));
+        return binding;
+    }
+
+    @SuppressWarnings("boxing")
+    public static BooleanBinding createTimeFieldBinding(TextField field) {
+        var binding = Bindings.createBooleanBinding(() -> !timePattern.matcher(field.getText()).matches(), field.textProperty());
         field.styleProperty().bind(Bindings.when(binding).then(errorComponentStyle).otherwise(""));
         return binding;
     }

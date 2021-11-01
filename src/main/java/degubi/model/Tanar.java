@@ -12,13 +12,28 @@ public final class Tanar {
     public final String kepzettseg;
 
     public Tanar(ResultSet result) throws SQLException {
-        this.szemelyiSzam = result.getString("szemelyiSzam");
-        this.nev = result.getString("nev");
-        this.kepzettseg = result.getString(KepzettsegDBUtils.TABLE + ".megnevezes");
+        this("", result);
+    }
+
+    public Tanar(String prefix, ResultSet result) throws SQLException {
+        this.szemelyiSzam = result.getString(prefix + "szemelyiSzam");
+        this.nev = result.getString(prefix + "nev");
+
+        if(prefix.equals("")) {
+            this.kepzettseg = result.getString(KepzettsegDBUtils.TABLE + ".megnevezes");
+        }else {
+            this.kepzettseg = null;
+        }
     }
 
     //FX-nek getterek
     public String getSzemelyiSzam() { return szemelyiSzam; }
     public String getNev() { return nev; }
     public String getKepzettseg() { return kepzettseg; }
+
+    //FX-nek label
+    @Override
+    public String toString() {
+        return nev + " (" + szemelyiSzam + ")";
+    }
 }

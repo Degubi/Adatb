@@ -15,10 +15,14 @@ public final class Terem {
     private final SimpleBooleanProperty vanEProjektorProp;
 
     public Terem(ResultSet result) throws SQLException {
-        this.azonosito = result.getInt("azonosito");
-        this.epulet = result.getInt("epulet");
-        this.ferohelyekSzama = result.getInt("ferohelyekSzama");
-        this.vanEProjektor = result.getBoolean("vanEProjektor");
+        this("", result);
+    }
+
+    public Terem(String prefix, ResultSet result) throws SQLException {
+        this.azonosito = result.getInt(prefix + "azonosito");
+        this.epulet = result.getInt(prefix + "epulet");
+        this.ferohelyekSzama = result.getInt(prefix + "ferohelyekSzama");
+        this.vanEProjektor = result.getBoolean(prefix + "vanEProjektor");
 
         this.vanEProjektorProp = new SimpleBooleanProperty(vanEProjektor);
     }
@@ -28,4 +32,10 @@ public final class Terem {
     public int getFerohelyekSzama() { return ferohelyekSzama; }
     public int getEpulet() { return epulet; }
     public SimpleBooleanProperty getVanEProjektor() { return vanEProjektorProp; }
+
+    //FX-nek label
+    @Override
+    public String toString() {
+        return epulet + ". épület " + azonosito + ". terem";
+    }
 }

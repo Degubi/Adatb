@@ -17,6 +17,7 @@ public final class Main extends Application {
     private static final String roomsTabLabel = "Termek";
     private static final String classesTabLabel = "Osztályok";
     private static final String studentsTabLabel = "Diákok";
+    private static final String fullTimetableTabLabel = "Teljes Órarend";
 
     public static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
     public static final Label loadingLabel = new Label("Töltés...");
@@ -28,17 +29,19 @@ public final class Main extends Application {
         var roomsTable = TeremGUIUtils.createTable();
         var classesTable = OsztalyGUIUtils.createTable();
         var studentsTable = DiakGUIUtils.createTable();
+        var fullTimetableTable = OraGUIUtils.createTable();
 
         var teachersTab = Components.newTab(teachersTabLabel, teachersTable, Tanar.fieldMappings, TanarGUIUtils::refreshTable);
         var qualificationsTab = Components.newTab(qualificationsTabLabel, qualificationsTable, Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
         var roomsTab = Components.newTab(roomsTabLabel, roomsTable, Terem.fieldMappings, TeremGUIUtils::refreshTable);
         var classesTab = Components.newTab(classesTabLabel, classesTable, Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
         var studentsTab = Components.newTab(studentsTabLabel, studentsTable, Diak.fieldMappings, DiakGUIUtils::refreshTable);
+        var fullTimetableTab = Components.newTab(fullTimetableTabLabel, fullTimetableTable, Ora.fieldMappings, OraGUIUtils::refreshTable);
 
         var searchTextField = new TextField();
         var darkModeSwitchButton = new Button(null, Components.dayIcon);
-        var tabPane = new TabPane(teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
-        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane, qualificationsTable, roomsTable, teachersTable, studentsTable, classesTable));
+        var tabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
+        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane, qualificationsTable, roomsTable, fullTimetableTable, teachersTable, studentsTable, classesTable));
 
         searchTextField.setPromptText("Keresés");
         searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(tabPane, searchTextField));
@@ -64,7 +67,7 @@ public final class Main extends Application {
         switchButton.setGraphic(isDay ? Components.nightIcon : Components.dayIcon);
     }
 
-    private static void handleAddButtonClick(TabPane tabPane, TableView<Kepzettseg> qualificationsTable, TableView<Terem> roomsTable,
+    private static void handleAddButtonClick(TabPane tabPane, TableView<Kepzettseg> qualificationsTable, TableView<Terem> roomsTable, TableView<Ora> fullTimetableTable,
                                              TableView<Tanar> teachersTable, TableView<Diak> studentsTable, TableView<Osztaly> classesTable) {
 
         switch(tabPane.getSelectionModel().getSelectedItem().getText()) {
@@ -73,6 +76,7 @@ public final class Main extends Application {
             case roomsTabLabel:          TeremGUIUtils.showEditorDialog(roomsTable);               break;
             case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(classesTable);           break;
             case studentsTabLabel:       DiakGUIUtils.showEditorDialog(studentsTable);             break;
+            case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(fullTimetableTable);         break;
         };
     }
 

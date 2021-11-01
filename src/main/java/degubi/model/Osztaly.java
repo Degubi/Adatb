@@ -10,8 +10,12 @@ public final class Osztaly {
     public final String megnevezes;
 
     public Osztaly(ResultSet result) throws SQLException {
-        this.azonosito = result.getInt("azonosito");
-        this.megnevezes = result.getString("megnevezes");
+        this("", result);
+    }
+
+    public Osztaly(String prefix, ResultSet result) throws SQLException {
+        this.azonosito = result.getInt(prefix + "azonosito");
+        this.megnevezes = result.getString(prefix + "megnevezes");
     }
 
     //FX-nek getterek

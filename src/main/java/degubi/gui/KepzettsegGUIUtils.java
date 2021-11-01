@@ -27,8 +27,8 @@ public final class KepzettsegGUIUtils {
     }
 
     public static TableView<Kepzettseg> createTable() {
-        return Components.newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
-                                          Components.newStringColumn("Megnevezés", "megnevezes"));
+        return Components.newTable(false, Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
+                                          Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
     }
 
     public static void refreshTable(TableView<Kepzettseg> table) {

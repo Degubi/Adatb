@@ -36,9 +36,9 @@ public final class TanarGUIUtils {
     }
 
     public static TableView<Tanar> createTable() {
-        var table = Components.<Tanar>newTable(false, Components.newStringColumn("Személyi Szám", "szemelyiSzam"),
-                                                      Components.newStringColumn("Név", "nev"),
-                                                      Components.newStringColumn("Képzettség", "kepzettseg"));
+        var table = Components.<Tanar>newTable(false, Components.newStringColumn("Személyi Szám", Tanar.fieldMappings),
+                                                      Components.newStringColumn("Név", Tanar.fieldMappings),
+                                                      Components.newStringColumn("Képzettség", Tanar.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;

@@ -8,6 +8,7 @@ import java.util.function.*;
 import javafx.collections.*;
 
 final class DBUtils {
+    private static final boolean LOG_SQL_QUERIES = true;
 
     private static void useStatement(Consumer<Statement> connectionConsumer) {
         try(var conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "test", "test123");
@@ -23,6 +24,10 @@ final class DBUtils {
     public static<T> CompletableFuture<ObservableList<T>> list(String sql, ItemCreator<T> resultElementCreator) {
         return CompletableFuture.supplyAsync(() -> {
             var result = new ArrayList<T>();
+
+            if(LOG_SQL_QUERIES) {
+                System.out.println("Listing with query: \"" + sql + "\"");
+            }
 
             DBUtils.useStatement(statement -> {
                 try(var resultSet = statement.executeQuery(sql)) {
@@ -41,6 +46,8 @@ final class DBUtils {
 
     public static void update(String sql) {
         DBUtils.useStatement(statement -> {
+            System.out.println("Updating with query: \"" + sql + "\"");
+
             try {
                 statement.executeUpdate(sql);
             } catch (SQLException e) {

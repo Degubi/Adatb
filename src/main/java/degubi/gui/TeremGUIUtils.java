@@ -38,9 +38,9 @@ public final class TeremGUIUtils {
     }
 
     public static TableView<Terem> createTable() {
-        return Components.newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
-                                          Components.newNumberColumn("Épület", "epulet"),
-                                          Components.newNumberColumn("Férőhelyek Száma", "ferohelyekSzama"),
+        return Components.newTable(false, Components.newNumberColumn("Azonosító", Terem.fieldMappings),
+                                          Components.newNumberColumn("Épület", Terem.fieldMappings),
+                                          Components.newNumberColumn("Férőhelyek Száma", Terem.fieldMappings),
                                           Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
     }
 

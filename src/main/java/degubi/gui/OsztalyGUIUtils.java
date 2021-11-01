@@ -27,8 +27,8 @@ public final class OsztalyGUIUtils {
     }
 
     public static TableView<Osztaly> createTable() {
-        return Components.newTable(false, Components.newNumberColumn("Azonosító", "azonosito"),
-                                          Components.newStringColumn("Megnevezés", "megnevezes"));
+        return Components.newTable(false, Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
+                                          Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
     }
 
     public static void refreshTable(TableView<Osztaly> table) {

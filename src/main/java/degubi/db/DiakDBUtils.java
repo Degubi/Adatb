@@ -8,8 +8,8 @@ public final class DiakDBUtils {
     public static final String TABLE = "diak";
 
     public static CompletableFuture<ObservableList<Diak>> listAll() {
-        return DBUtils.list("SELECT " + TABLE + ".*, " + OsztalyDBUtils.TABLE + ".* FROM `" + TABLE +
-                            "` INNER JOIN " + OsztalyDBUtils.TABLE + " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito", Diak::new);
+        return DBUtils.list("SELECT " + TABLE + ".*, " + OsztalyDBUtils.TABLE + ".* FROM " + TABLE +
+                            " INNER JOIN " + OsztalyDBUtils.TABLE + " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito", Diak::new);
     }
 
     public static CompletableFuture<ObservableList<Diak>> listFiltered(String field, String value) {

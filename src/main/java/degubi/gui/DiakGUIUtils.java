@@ -36,9 +36,9 @@ public final class DiakGUIUtils {
     }
 
     public static TableView<Diak> createTable() {
-        var table = Components.<Diak>newTable(false, Components.newStringColumn("Neptun Kód", "neptunKod"),
-                                                     Components.newStringColumn("Név", "nev"),
-                                                     Components.newStringColumn("Osztály", "osztalyMegnevezes"));
+        var table = Components.<Diak>newTable(false, Components.newStringColumn("Neptun Kód", Diak.fieldMappings),
+                                                     Components.newStringColumn("Név", Diak.fieldMappings),
+                                                     Components.newStringColumn("Osztály", Diak.fieldMappings));
 
         table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
         return table;

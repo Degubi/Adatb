@@ -1,6 +1,9 @@
 Használt eszközök:
 - Dia
 - VSCode
+- Eclipse
+- Maven
+- Java 11
 
 Normalizálási lépések:
 - TODO

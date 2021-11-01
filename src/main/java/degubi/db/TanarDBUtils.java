@@ -8,8 +8,8 @@ public final class TanarDBUtils {
     public static final String TABLE = "tanar";
 
     public static CompletableFuture<ObservableList<Tanar>> listAll() {
-        return DBUtils.list("SELECT " + TABLE + ".*, " + KepzettsegDBUtils.TABLE + ".* FROM `" + TABLE +
-                            "` INNER JOIN " + KepzettsegDBUtils.TABLE + " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito", Tanar::new);
+        return DBUtils.list("SELECT " + TABLE + ".*, " + KepzettsegDBUtils.TABLE + ".* FROM " + TABLE +
+                            " INNER JOIN " + KepzettsegDBUtils.TABLE + " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito", Tanar::new);
     }
 
     public static CompletableFuture<ObservableList<Tanar>> listFiltered(String field, String value) {

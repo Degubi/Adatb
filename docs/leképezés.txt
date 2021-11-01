@@ -1,10 +1,8 @@
-Tanár(_személyi_szám_, Képzettség._azonosító_, név)
-Képzettség(_azonosító_, megnevezés)
-Óra(_nap_, _időpont_, megnevezés, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)
 Osztály(_azonosító_, megnevezés)
-Terem(_azonosító_, férőhelyek száma, épület, van-e projektor)
+Képzettség(_azonosító_, megnevezés)
+Terem(_azonosító_, férőhelyekSzáma, épületSzám, van-e projektor)
+
+Tanár(_személyi_szám_, Képzettség._azonosító_, név)
 Diák(_neptun_kód_, Osztály._megnevezés_, név)
 
-- 1. NF teljesül
-
-TODO: 2. NF és 3. NF
+Óra(_napIndex_, _időpont_, név, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)
