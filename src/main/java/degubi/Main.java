@@ -2,7 +2,10 @@ package degubi;
 
 import degubi.gui.*;
 import degubi.model.*;
+import java.util.*;
+import java.util.function.*;
 import javafx.application.*;
+import javafx.collections.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -16,13 +19,9 @@ public final class Main extends Application {
     private static final String roomsTabLabel = "Termek";
     private static final String classesTabLabel = "Osztályok";
     private static final String studentsTabLabel = "Diákok";
-    private static final String fullTimetableTabLabel = "Teljes Órarend";
+    private static final String fullTimetableTabLabel = "Órák";
 
     public static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
-    public static final ComboBox<Tanar> teachersComboBox = new ComboBox<>();
-    public static final ComboBox<Osztaly> classesComboBox = new ComboBox<>();
-    public static final TextField searchTextField = new TextField();
-    public static final Button addButton = new Button("Hozzáadás");
     public static final Label loadingLabel = new Label("Töltés...");
 
     @Override
@@ -30,41 +29,70 @@ public final class Main extends Application {
         var teacherTimetable = Components.newTimetableGridPane();
         var classTimetable = Components.newTimetableGridPane();
 
-        var teachersTab = Components.newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
-        var qualificationsTab = Components.newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
-        var roomsTab = Components.newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
-        var classesTab = Components.newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
-        var studentsTab = Components.newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
-        var fullTimetableTab = Components.newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
-        var teacherTimetableTab = Components.newTab("Tanári Órarend", teacherTimetable, OraGUIUtils::handleTeacherTableSwitch);
-        var classTimetableTab = Components.newTab("Osztály Órarend", classTimetable, OraGUIUtils::handleClassTableSwitch);
+        var classesComboBox = new ComboBox<Osztaly>();
+        var teachersComboBox = new ComboBox<Tanar>();
+
+        var teachersTab = newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
+        var qualificationsTab = newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
+        var roomsTab = newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var classesTab = newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
+        var studentsTab = newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
+        var fullTimetableTab = newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
+        var teacherTimetableTab = newTab("Tanáronkénti", teacherTimetable, k -> OraGUIUtils.handleTeacherTableSwitch(k, teachersComboBox));
+        var classTimetableTab = newTab("Osztályonkénti", classTimetable, k -> OraGUIUtils.handleClassTableSwitch(k, classesComboBox));
+
+        var timetableTabPane = new TabPane(teacherTimetableTab, classTimetableTab);
+        var tablesTabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
+
+        var timetableTab = new Tab("Órarendek", timetableTabPane);
+        var tablesTab = new Tab("Táblák", tablesTabPane);
+
+        var tablesTabBinding = tablesTab.selectedProperty();
+        var mainTabPane = new TabPane(timetableTab, tablesTab);
+        mainTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        timetableTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        tablesTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+
+        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(mainTabPane));
+        addButton.visibleProperty().bind(tablesTabBinding);
+        addButton.managedProperty().bind(tablesTabBinding);
+
+        var searchTextField = new TextField();
+        searchTextField.setPromptText("Keresés");
+        searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(mainTabPane, searchTextField));
+        searchTextField.visibleProperty().bind(tablesTabBinding);
+        searchTextField.managedProperty().bind(tablesTabBinding);
+
+        searchFilterSelectorBox.visibleProperty().bind(tablesTabBinding);
+        searchFilterSelectorBox.managedProperty().bind(tablesTabBinding);
 
         var darkModeSwitchButton = new Button(null, Components.dayIcon);
-        var tabPane = new TabPane(teacherTimetableTab, classTimetableTab, fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
-
-        addButton.setOnAction(e -> handleAddButtonClick(tabPane));
-        searchTextField.setPromptText("Keresés");
-        searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(tabPane, searchTextField));
         darkModeSwitchButton.setTooltip(new Tooltip("Világos/Sötét Mód"));
         darkModeSwitchButton.setOnAction(e -> handleDarkModeSwitch(stage, darkModeSwitchButton));
 
+        var teachersComboBoxBinding = timetableTab.selectedProperty().and(teacherTimetableTab.selectedProperty());
+        teachersComboBox.visibleProperty().bind(teachersComboBoxBinding);
+        teachersComboBox.managedProperty().bind(teachersComboBoxBinding);
         teachersComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if(oldVal != null & newVal != null) {
-                OraGUIUtils.refreshTeacherTable(teacherTimetable);
+                OraGUIUtils.refreshTeacherTable(teacherTimetable, teachersComboBox);
             }
         });
+
+        var classesComboBoxBinding = timetableTab.selectedProperty().and(classTimetableTab.selectedProperty());
+        classesComboBox.visibleProperty().bind(classesComboBoxBinding);
+        classesComboBox.managedProperty().bind(classesComboBoxBinding);
         classesComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if(oldVal != null & newVal != null) {
-                OraGUIUtils.refreshClassTable(classTimetable);
+                OraGUIUtils.refreshClassTable(classTimetable, classesComboBox);
             }
         });
 
         var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addButton));
         bottomPanel.setPadding(new Insets(5));
 
-        tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         stage.setTitle("Adatb");
-        stage.setScene(new Scene(new BorderPane(null, tabPane, null, bottomPanel, null), 800, 600));
+        stage.setScene(new Scene(new BorderPane(null, mainTabPane, null, bottomPanel, null), 800, 600));
         stage.show();
     }
 
@@ -92,13 +120,15 @@ public final class Main extends Application {
         }
     }
 
-    private static void handleSearchFieldTyping(TabPane tabPane, TextField searchTextField) {
+    private static void handleSearchFieldTyping(TabPane mainTabPane, TextField searchTextField) {
         loadingLabel.setVisible(true);
 
         var searchedText = searchTextField.getText();
         var searchedFieldName = searchFilterSelectorBox.getValue();
-        var activeTabLabel = tabPane.getSelectionModel().getSelectedItem().getText();
-        var selectedTable = (TableView<?>) tabPane.getSelectionModel().getSelectedItem().getContent();
+        var selectedSecondaryTabPane = (TabPane) mainTabPane.getSelectionModel().getSelectedItem().getContent();
+        var selectedSecondLevelTab = selectedSecondaryTabPane.getSelectionModel().getSelectedItem();
+        var activeTabLabel = selectedSecondLevelTab.getText();
+        var selectedTable = (TableView<?>) selectedSecondLevelTab.getContent();
 
         getSearchFieldChangeHandler(activeTabLabel, searchedText.isBlank(), searchedFieldName, searchedText, selectedTable).run();
     }
@@ -120,6 +150,36 @@ public final class Main extends Application {
                                                         : () -> OraGUIUtils.refreshFilteredTable(field, value, (TableView<Ora>) table);
             default: return () -> {};
         }
+    }
+
+    private static<T> Tab newTab(String title, TableView<T> table, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
+        var tab = new Tab(title, table);
+        var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
+
+        tab.setOnSelectionChanged(e -> {
+            if(tab.isSelected()) {
+                Main.loadingLabel.setVisible(true);
+                onSelectedDataRefresher.accept(table);
+
+                Main.searchFilterSelectorBox.setItems(filterComboBoxes);
+                Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
+            }
+        });
+
+        return tab;
+    }
+
+    private static<T extends Node> Tab newTab(String title, T table, Consumer<T> onSelectedDataRefresher) {
+        var tab = new Tab(title, table);
+
+        tab.setOnSelectionChanged(e -> {
+            if(tab.isSelected()) {
+                Main.loadingLabel.setVisible(true);
+                onSelectedDataRefresher.accept(table);
+            }
+        });
+
+        return tab;
     }
 
     public static void main(String[] args) { launch(); }

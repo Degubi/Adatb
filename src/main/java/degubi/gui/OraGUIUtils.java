@@ -88,32 +88,26 @@ public final class OraGUIUtils {
                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void handleTeacherTableSwitch(GridPane timetable) {
-        Main.teachersComboBox.setItems(TanarDBUtils.listAll().join());
-        Main.teachersComboBox.getSelectionModel().selectFirst();
+    public static void handleTeacherTableSwitch(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
+        teachersComboBox.setItems(TanarDBUtils.listAll().join());
+        teachersComboBox.getSelectionModel().selectFirst();
 
-        Components.setEnabled(Main.classesComboBox, false);
-        Components.setEnabled(Main.teachersComboBox, true);
-
-        refreshTeacherTable(timetable);
+        refreshTeacherTable(timetable, teachersComboBox);
     }
 
-    public static void handleClassTableSwitch(GridPane timeTable) {
-        Main.classesComboBox.setItems(OsztalyDBUtils.listAll().join());
-        Main.classesComboBox.getSelectionModel().selectFirst();
+    public static void handleClassTableSwitch(GridPane timeTable, ComboBox<Osztaly> classesComboBox) {
+        classesComboBox.setItems(OsztalyDBUtils.listAll().join());
+        classesComboBox.getSelectionModel().selectFirst();
 
-        Components.setEnabled(Main.teachersComboBox, false);
-        Components.setEnabled(Main.classesComboBox, true);
-
-        refreshClassTable(timeTable);
+        refreshClassTable(timeTable, classesComboBox);
     }
 
-    public static void refreshTeacherTable(GridPane timetable) {
-        refreshTimeTable(timetable, () -> OraDBUtils.listFor(Main.teachersComboBox.getValue()));
+    public static void refreshTeacherTable(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
+        refreshTimeTable(timetable, () -> OraDBUtils.listFor(teachersComboBox.getValue()));
     }
 
-    public static void refreshClassTable(GridPane timetable) {
-        refreshTimeTable(timetable, () -> OraDBUtils.listFor(Main.classesComboBox.getValue()));
+    public static void refreshClassTable(GridPane timetable, ComboBox<Osztaly> classesComboBox) {
+        refreshTimeTable(timetable, () -> OraDBUtils.listFor(classesComboBox.getValue()));
     }
 
 

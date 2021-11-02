@@ -8,10 +8,8 @@ import javafx.application.*;
 import javafx.beans.binding.*;
 import javafx.beans.property.*;
 import javafx.beans.value.*;
-import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.*;
@@ -188,52 +186,6 @@ public final class Components {
         var label = new Text(text);
         label.setStyle(textColor);
         return label;
-    }
-
-    public static<T> Tab newTab(String title, TableView<T> table, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
-        var tab = new Tab(title, table);
-        var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
-
-        tab.setOnSelectionChanged(e -> {
-            if(tab.isSelected()) {
-                setEnabled(Main.searchFilterSelectorBox, true);
-                setEnabled(Main.searchTextField, true);
-                setEnabled(Main.addButton, true);
-
-                setEnabled(Main.teachersComboBox, false);
-                setEnabled(Main.classesComboBox, false);
-                Main.loadingLabel.setVisible(true);
-
-                onSelectedDataRefresher.accept(table);
-                Main.searchFilterSelectorBox.setItems(filterComboBoxes);
-                Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
-            }
-        });
-
-        return tab;
-    }
-
-    public static<T extends Node> Tab newTab(String title, T table, Consumer<T> onSelectedDataRefresher) {
-        var tab = new Tab(title, table);
-
-        tab.setOnSelectionChanged(e -> {
-            if(tab.isSelected()) {
-                setEnabled(Main.searchFilterSelectorBox, false);
-                setEnabled(Main.searchTextField, false);
-                setEnabled(Main.addButton, false);
-
-                Main.loadingLabel.setVisible(true);
-
-                onSelectedDataRefresher.accept(table);
-            }
-        });
-
-        return tab;
-    }
-
-    public static void setEnabled(Node node, boolean enabled) {
-        node.setVisible(enabled);
-        node.setManaged(enabled);
     }
 
     public static void showErrorDialog(String message) {

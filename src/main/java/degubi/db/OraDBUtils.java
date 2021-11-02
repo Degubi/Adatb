@@ -42,6 +42,7 @@ public final class OraDBUtils {
         return DBUtils.list(query, Ora::new);
     }
 
+    @SuppressWarnings("boxing")
     public static CompletableFuture<ObservableList<Ora>> listFor(Osztaly osztaly) {
         var query = String.format(OraDBUtils.SELECT_ALL_QUERY +
                                   " WHERE osztalyAzonosito  = '%s'" +
