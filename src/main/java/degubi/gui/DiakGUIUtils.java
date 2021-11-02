@@ -34,7 +34,7 @@ public final class DiakGUIUtils {
         components.add(osztalyComboBox, 1, 1);
         components.add(Components.newLabel("Név:"), 0, 2);
         components.add(nevField, 1, 2);
-        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+        components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(neptunKodField, osztalyComboBox, nevField, toEdit, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
@@ -44,13 +44,10 @@ public final class DiakGUIUtils {
     }
 
     public static TableView<Diak> createTable() {
-        var table = Components.newTable(DiakGUIUtils::showEditorDialog,
-                                        Components.newStringColumn("Neptun Kód", Diak.fieldMappings),
-                                        Components.newStringColumn("Név", Diak.fieldMappings),
-                                        Components.newStringColumn("Osztály", Diak.fieldMappings));
-
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
-        return table;
+        return Components.newTable(DiakGUIUtils::showEditorDialog, DiakGUIUtils::handleDeleteButtonClick,
+                                   Components.newStringColumn("Neptun Kód", Diak.fieldMappings),
+                                   Components.newStringColumn("Név", Diak.fieldMappings),
+                                   Components.newStringColumn("Osztály", Diak.fieldMappings));
     }
 
     public static void refreshTable(TableView<Diak> table) {

@@ -22,7 +22,7 @@ public final class OsztalyGUIUtils {
         var stage = new Stage();
         components.add(Components.newLabel("Megnevezés:"), 0, 0);
         components.add(megnevezesField, 1, 0);
-        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+        components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(megnevezesField, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
@@ -32,12 +32,9 @@ public final class OsztalyGUIUtils {
     }
 
     public static TableView<Osztaly> createTable() {
-        var table = Components.newTable(OsztalyGUIUtils::showEditorDialog,
-                                        Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
-                                        Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
-
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
-        return table;
+        return Components.newTable(OsztalyGUIUtils::showEditorDialog, OsztalyGUIUtils::handleDeleteButtonClick,
+                                   Components.newNumberColumn("Azonosító", Osztaly.fieldMappings),
+                                   Components.newStringColumn("Megnevezés", Osztaly.fieldMappings));
     }
 
     public static void refreshTable(TableView<Osztaly> table) {

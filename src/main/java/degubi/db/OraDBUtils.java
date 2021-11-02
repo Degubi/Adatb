@@ -7,17 +7,17 @@ import javafx.collections.*;
 public final class OraDBUtils {
     public static final String TABLE = "ora";
 
-    private static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " +
-                                                       OsztalyDBUtils.TABLE + ".*, " +
-                                                       TeremDBUtils.TABLE + ".*, " +
-                                                       TanarDBUtils.TABLE + ".szemelyiSzam, " + TanarDBUtils.TABLE + ".nev" +
-                                                   " FROM " + TABLE +
-                                                   " INNER JOIN " + OsztalyDBUtils.TABLE +
-                                                       " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito" +
-                                                   " INNER JOIN " + TeremDBUtils.TABLE +
-                                                       " ON " + TABLE + ".teremAzonosito = " + TeremDBUtils.TABLE + ".azonosito" +
-                                                   " INNER JOIN " + TanarDBUtils.TABLE +
-                                                       " ON " + TABLE + ".tanarSzemelyiSzam = " + TanarDBUtils.TABLE + ".szemelyiSzam";
+    static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " +
+                                               OsztalyDBUtils.TABLE + ".*, " +
+                                               TeremDBUtils.TABLE + ".*, " +
+                                               TanarDBUtils.TABLE + ".szemelyiSzam, " + TanarDBUtils.TABLE + ".nev" +
+                                           " FROM " + TABLE +
+                                           " INNER JOIN " + OsztalyDBUtils.TABLE +
+                                               " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito" +
+                                           " INNER JOIN " + TeremDBUtils.TABLE +
+                                               " ON " + TABLE + ".teremAzonosito = " + TeremDBUtils.TABLE + ".azonosito" +
+                                           " INNER JOIN " + TanarDBUtils.TABLE +
+                                               " ON " + TABLE + ".tanarSzemelyiSzam = " + TanarDBUtils.TABLE + ".szemelyiSzam";
 
     public static CompletableFuture<ObservableList<Ora>> listAll() {
         return DBUtils.list(SELECT_ALL_QUERY, Ora::new);
@@ -32,6 +32,22 @@ public final class OraDBUtils {
                            field.equals("tanar") ? "nev" : field;
 
         return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Ora::new);
+    }
+
+    public static CompletableFuture<ObservableList<Ora>> listFor(Tanar tanar) {
+        var query = String.format(OraDBUtils.SELECT_ALL_QUERY +
+                                  " WHERE tanarSzemelyiSzam = '%s'" +
+                                  " ORDER BY idopont ASC", tanar.szemelyiSzam);
+
+        return DBUtils.list(query, Ora::new);
+    }
+
+    public static CompletableFuture<ObservableList<Ora>> listFor(Osztaly osztaly) {
+        var query = String.format(OraDBUtils.SELECT_ALL_QUERY +
+                                  " WHERE osztalyAzonosito  = '%s'" +
+                                  " ORDER BY idopont ASC", osztaly.azonosito);
+
+        return DBUtils.list(query, Ora::new);
     }
 
     @SuppressWarnings("boxing")

@@ -35,7 +35,7 @@ public final class TeremGUIUtils {
         components.add(ferohelyekField, 1, 2);
         components.add(Components.newLabel("Van-e Projektor:"), 0, 3);
         components.add(vanEProjektorCheckBox, 1, 3);
-        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+        components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(teremSzamField, epuletSzamField, ferohelyekField, vanEProjektorCheckBox, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
@@ -45,15 +45,12 @@ public final class TeremGUIUtils {
     }
 
     public static TableView<Terem> createTable() {
-        var table = Components.newTable(TeremGUIUtils::showEditorDialog,
-                                        Components.newNumberColumn("Azonosító", Terem.fieldMappings),
-                                        Components.newNumberColumn("Terem", Terem.fieldMappings),
-                                        Components.newNumberColumn("Épület", Terem.fieldMappings),
-                                        Components.newNumberColumn("Férőhelyek Száma", Terem.fieldMappings),
-                                        Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
-
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
-        return table;
+        return Components.newTable(TeremGUIUtils::showEditorDialog, TeremGUIUtils::handleDeleteButtonClick,
+                                   Components.newNumberColumn("Azonosító", Terem.fieldMappings),
+                                   Components.newNumberColumn("Terem", Terem.fieldMappings),
+                                   Components.newNumberColumn("Épület", Terem.fieldMappings),
+                                   Components.newNumberColumn("Férőhelyek Száma", Terem.fieldMappings),
+                                   Components.newBooleanColumn("Van-E Projektor", Terem::getVanEProjektor));
     }
 
     public static void refreshTable(TableView<Terem> table) {

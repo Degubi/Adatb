@@ -3,9 +3,17 @@ package degubi.gui;
 import degubi.*;
 import degubi.db.*;
 import degubi.model.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.stream.*;
+import javafx.application.*;
 import javafx.collections.*;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import javafx.stage.*;
 
 public final class OraGUIUtils {
@@ -48,7 +56,8 @@ public final class OraGUIUtils {
         components.add(teremComboBox, 1, 4);
         components.add(Components.newLabel("Tanár"), 0, 5);
         components.add(tanarComboBox, 1, 5);
-        components.add(Components.newBottomButtonPanel("Hozzáad", stage, okButtonBinding, e -> handleInteractButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
+        components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
+                                                       e -> handleInteractButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Óra");
@@ -57,17 +66,14 @@ public final class OraGUIUtils {
     }
 
     public static TableView<Ora> createTable() {
-        var table = Components.newTable(OraGUIUtils::showEditorDialog,
-                                        Components.newNumberColumn("Azonosító", Ora.fieldMappings),
-                                        Components.newStringColumn("Nap", Ora.fieldMappings),
-                                        Components.newStringColumn("Időpont", Ora.fieldMappings),
-                                        Components.newStringColumn("Név", Ora.fieldMappings),
-                                        Components.newStringColumn("Osztály", Ora.fieldMappings),
-                                        Components.newStringColumn("Terem", Ora.fieldMappings),
-                                        Components.newStringColumn("Tanár", Ora.fieldMappings));
-
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
-        return table;
+        return Components.newTable(OraGUIUtils::showEditorDialog, OraGUIUtils::handleDeleteButtonClick,
+                                   Components.newNumberColumn("Azonosító", Ora.fieldMappings),
+                                   Components.newStringColumn("Nap", Ora.fieldMappings),
+                                   Components.newStringColumn("Időpont", Ora.fieldMappings),
+                                   Components.newStringColumn("Név", Ora.fieldMappings),
+                                   Components.newStringColumn("Osztály", Ora.fieldMappings),
+                                   Components.newStringColumn("Terem", Ora.fieldMappings),
+                                   Components.newStringColumn("Tanár", Ora.fieldMappings));
     }
 
     public static void refreshTable(TableView<Ora> table) {
@@ -82,6 +88,78 @@ public final class OraGUIUtils {
                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    public static void handleTeacherTableSwitch(GridPane timetable) {
+        Main.teachersComboBox.setItems(TanarDBUtils.listAll().join());
+        Main.teachersComboBox.getSelectionModel().selectFirst();
+
+        Components.setEnabled(Main.classesComboBox, false);
+        Components.setEnabled(Main.teachersComboBox, true);
+
+        refreshTeacherTable(timetable);
+    }
+
+    public static void handleClassTableSwitch(GridPane timeTable) {
+        Main.classesComboBox.setItems(OsztalyDBUtils.listAll().join());
+        Main.classesComboBox.getSelectionModel().selectFirst();
+
+        Components.setEnabled(Main.teachersComboBox, false);
+        Components.setEnabled(Main.classesComboBox, true);
+
+        refreshClassTable(timeTable);
+    }
+
+    public static void refreshTeacherTable(GridPane timetable) {
+        refreshTimeTable(timetable, () -> OraDBUtils.listFor(Main.teachersComboBox.getValue()));
+    }
+
+    public static void refreshClassTable(GridPane timetable) {
+        refreshTimeTable(timetable, () -> OraDBUtils.listFor(Main.classesComboBox.getValue()));
+    }
+
+
+    @SuppressWarnings("boxing")
+    private static void refreshTimeTable(GridPane timetable, Supplier<CompletableFuture<ObservableList<Ora>>> oraListaSupplier) {
+        timetable.getChildren().clear();
+        timetable.add(newCenteredLabel("Hétfő"), 0, 0);
+        timetable.add(newCenteredLabel("Kedd"), 1, 0);
+        timetable.add(newCenteredLabel("Szerda"), 2, 0);
+        timetable.add(newCenteredLabel("Csütörtök"), 3, 0);
+        timetable.add(newCenteredLabel("Péntek"), 4, 0);
+
+        oraListaSupplier.get()
+                        .thenApply(k -> k.stream().collect(Collectors.groupingBy(m -> m.napIndex)))
+                        .thenAccept(k -> {
+                            addClassesForDay(0, k, timetable);
+                            addClassesForDay(1, k, timetable);
+                            addClassesForDay(2, k, timetable);
+                            addClassesForDay(3, k, timetable);
+                            addClassesForDay(4, k, timetable);
+                        })
+                        .thenRun(() -> Main.loadingLabel.setVisible(false));
+    }
+
+
+    @SuppressWarnings("boxing")
+    private static void addClassesForDay(int dayIndex, Map<Integer, List<Ora>> data, GridPane timetable) {
+        var kek = data.getOrDefault(dayIndex, List.of());
+
+        IntStream.range(0, kek.size())
+                 .forEach(rowIndex -> {
+                     var rend = kek.get(rowIndex);
+                     var labelText = "Időpont: " + rend.idopont + "\n" +
+                                     "Tárgy: " + rend.nev + "\n" +
+                                     "Osztály: " + rend.osztaly.megnevezes + "\n" +
+                                     "Terem: " + rend.terem.toString();
+
+                     Platform.runLater(() -> timetable.add(newCenteredLabel(labelText), dayIndex, rowIndex + 1));
+                 });
+    }
+
+    private static Text newCenteredLabel(String text) {
+        var label = new Text(text);
+        GridPane.setHalignment(label, HPos.CENTER);
+        return label;
+    }
 
     private static void handleInteractButtonClick(ComboBox<String> napComboBox, TextField idopontField, TextField nevField, ComboBox<Osztaly> osztalyComboBox,
                                                   ComboBox<Terem> teremComboBox, ComboBox<Tanar> tanarComboBox, Ora toEdit, Stage window, TableView<Ora> table) {

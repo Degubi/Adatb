@@ -19,33 +19,52 @@ public final class Main extends Application {
     private static final String fullTimetableTabLabel = "Teljes Órarend";
 
     public static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
+    public static final ComboBox<Tanar> teachersComboBox = new ComboBox<>();
+    public static final ComboBox<Osztaly> classesComboBox = new ComboBox<>();
+    public static final TextField searchTextField = new TextField();
+    public static final Button addButton = new Button("Hozzáadás");
     public static final Label loadingLabel = new Label("Töltés...");
 
     @Override
     public void start(Stage stage) {
+        var teacherTimetable = Components.newTimetableGridPane();
+        var classTimetable = Components.newTimetableGridPane();
+
         var teachersTab = Components.newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
         var qualificationsTab = Components.newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
         var roomsTab = Components.newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
         var classesTab = Components.newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
         var studentsTab = Components.newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
         var fullTimetableTab = Components.newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
+        var teacherTimetableTab = Components.newTab("Tanári Órarend", teacherTimetable, OraGUIUtils::handleTeacherTableSwitch);
+        var classTimetableTab = Components.newTab("Osztály Órarend", classTimetable, OraGUIUtils::handleClassTableSwitch);
 
-        var searchTextField = new TextField();
         var darkModeSwitchButton = new Button(null, Components.dayIcon);
-        var tabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
-        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(tabPane));
+        var tabPane = new TabPane(teacherTimetableTab, classTimetableTab, fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
 
+        addButton.setOnAction(e -> handleAddButtonClick(tabPane));
         searchTextField.setPromptText("Keresés");
         searchTextField.setOnKeyReleased(e -> handleSearchFieldTyping(tabPane, searchTextField));
         darkModeSwitchButton.setTooltip(new Tooltip("Világos/Sötét Mód"));
         darkModeSwitchButton.setOnAction(e -> handleDarkModeSwitch(stage, darkModeSwitchButton));
 
-        var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, searchFilterSelectorBox, searchTextField, addButton));
+        teachersComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if(oldVal != null & newVal != null) {
+                OraGUIUtils.refreshTeacherTable(teacherTimetable);
+            }
+        });
+        classesComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if(oldVal != null & newVal != null) {
+                OraGUIUtils.refreshClassTable(classTimetable);
+            }
+        });
+
+        var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addButton));
         bottomPanel.setPadding(new Insets(5));
 
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         stage.setTitle("Adatb");
-        stage.setScene(new Scene(new VBox(11, tabPane, bottomPanel), 800, 600));
+        stage.setScene(new Scene(new BorderPane(null, tabPane, null, bottomPanel, null), 800, 600));
         stage.show();
     }
 
@@ -70,7 +89,7 @@ public final class Main extends Application {
             case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(null, (TableView<Osztaly>) table);       break;
             case studentsTabLabel:       DiakGUIUtils.showEditorDialog(null, (TableView<Diak>) table);             break;
             case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(null, (TableView<Ora>) table);               break;
-        };
+        }
     }
 
     private static void handleSearchFieldTyping(TabPane tabPane, TextField searchTextField) {

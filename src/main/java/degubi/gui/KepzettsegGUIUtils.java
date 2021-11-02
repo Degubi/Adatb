@@ -22,7 +22,7 @@ public final class KepzettsegGUIUtils {
         var stage = new Stage();
         components.add(Components.newLabel("Megnevezés:"), 0, 0);
         components.add(megnevezesField, 1, 0);
-        components.add(Components.newBottomButtonPanel(toEdit != null ? "Módosít" : "Hozzáad", stage, okButtonBinding,
+        components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(megnevezesField, toEdit, stage, table)), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
@@ -32,12 +32,9 @@ public final class KepzettsegGUIUtils {
     }
 
     public static TableView<Kepzettseg> createTable() {
-        var table = Components.newTable(KepzettsegGUIUtils::showEditorDialog,
-                                        Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
-                                        Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
-
-        table.getColumns().add(Components.newButtonColumn("Törlés", i -> handleDeleteButtonClick(table, i)));
-        return table;
+        return Components.newTable(KepzettsegGUIUtils::showEditorDialog, KepzettsegGUIUtils::handleDeleteButtonClick,
+                                   Components.newNumberColumn("Azonosító", Kepzettseg.fieldMappings),
+                                   Components.newStringColumn("Megnevezés", Kepzettseg.fieldMappings));
     }
 
     public static void refreshTable(TableView<Kepzettseg> table) {

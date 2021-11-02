@@ -11,6 +11,7 @@ import javafx.beans.value.*;
 import javafx.collections.*;
 import javafx.event.*;
 import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.*;
@@ -46,8 +47,8 @@ public final class Components {
                                                       "-fx-prompt-text-fill: transparent;";
     private Components() {}
 
-    public static FlowPane newBottomButtonPanel(String leftButtonText, Stage stage, ObservableValue<Boolean> okButtonBinding, EventHandler<ActionEvent> okButtonEvent) {
-        var okButton = new Button(leftButtonText);
+    public static FlowPane newEditorButtonPanel(boolean isEditingMode, Stage stage, ObservableValue<Boolean> okButtonBinding, EventHandler<ActionEvent> okButtonEvent) {
+        var okButton = new Button(isEditingMode ? "Módosít" : "Hozzáad");
         okButton.setDefaultButton(true);
         okButton.setOnAction(okButtonEvent);
         okButton.disableProperty().bind(okButtonBinding);
@@ -70,12 +71,14 @@ public final class Components {
         return butt;
     }
 
+    @SuppressWarnings("boxing")
     @SafeVarargs
-    public static<T> TableView<T> newTable(BiConsumer<T, TableView<T>> onEditRequested, TableColumn<T, ?>... columns) {
+    public static<T> TableView<T> newTable(BiConsumer<T, TableView<T>> onEditRequested, BiConsumer<TableView<T>, Integer> onDeleteClicked, TableColumn<T, ?>... columns) {
         var table = new TableView<T>();
         table.setEditable(false);
         table.setBorder(tableBorder);
         table.getColumns().addAll(columns);
+        table.getColumns().add(newButtonColumn("Törlés", i -> onDeleteClicked.accept(table, i)));
         table.setOnMousePressed(e -> {
             if(e.isPrimaryButtonDown() && e.getClickCount() == 2) {
                 var selection = table.getSelectionModel().getSelectedItem();
@@ -128,6 +131,23 @@ public final class Components {
         return col;
     }
 
+    public static GridPane newTimetableGridPane() {
+        var gridPane = new GridPane();
+        gridPane.setVgap(20);
+        gridPane.setHgap(10);
+        gridPane.setPadding(new Insets(10));
+
+        var sizer = new ColumnConstraints();
+        sizer.setPercentWidth(25);
+
+        gridPane.getColumnConstraints().add(sizer);
+        gridPane.getColumnConstraints().add(sizer);
+        gridPane.getColumnConstraints().add(sizer);
+        gridPane.getColumnConstraints().add(sizer);
+        gridPane.getColumnConstraints().add(sizer);
+        return gridPane;
+    }
+
     public static GridPane newFormGridPane() {
         var gridPane = new GridPane();
         gridPane.setVgap(10);
@@ -170,20 +190,50 @@ public final class Components {
         return label;
     }
 
-    public static<T> Tab newTab(String title, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
-        var tab = new Tab(title, content);
+    public static<T> Tab newTab(String title, TableView<T> table, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
+        var tab = new Tab(title, table);
         var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
 
         tab.setOnSelectionChanged(e -> {
             if(tab.isSelected()) {
+                setEnabled(Main.searchFilterSelectorBox, true);
+                setEnabled(Main.searchTextField, true);
+                setEnabled(Main.addButton, true);
+
+                setEnabled(Main.teachersComboBox, false);
+                setEnabled(Main.classesComboBox, false);
                 Main.loadingLabel.setVisible(true);
-                onSelectedDataRefresher.accept(content);
+
+                onSelectedDataRefresher.accept(table);
                 Main.searchFilterSelectorBox.setItems(filterComboBoxes);
                 Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
             }
         });
 
         return tab;
+    }
+
+    public static<T extends Node> Tab newTab(String title, T table, Consumer<T> onSelectedDataRefresher) {
+        var tab = new Tab(title, table);
+
+        tab.setOnSelectionChanged(e -> {
+            if(tab.isSelected()) {
+                setEnabled(Main.searchFilterSelectorBox, false);
+                setEnabled(Main.searchTextField, false);
+                setEnabled(Main.addButton, false);
+
+                Main.loadingLabel.setVisible(true);
+
+                onSelectedDataRefresher.accept(table);
+            }
+        });
+
+        return tab;
+    }
+
+    public static void setEnabled(Node node, boolean enabled) {
+        node.setVisible(enabled);
+        node.setManaged(enabled);
     }
 
     public static void showErrorDialog(String message) {

@@ -10,14 +10,15 @@ import javafx.collections.*;
 final class DBUtils {
     private static final boolean LOG_SQL_QUERIES = true;
 
-    private static void useStatement(Consumer<Statement> connectionConsumer) {
+    private static<T> T useStatement(Function<Statement, T> connectionConsumer) {
         try(var conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "test", "test123");
             var statement = conn.createStatement()) {
 
-            connectionConsumer.accept(statement);
+            return connectionConsumer.apply(statement);
         } catch (SQLException e) {
             e.printStackTrace();
             Components.showErrorDialog("Nem sikerült csatlakozni a szerverhez!");
+            return null;
         }
     }
 
@@ -26,10 +27,10 @@ final class DBUtils {
             System.out.println("Listing with query: \"" + sql + "\"");
         }
 
-        return CompletableFuture.supplyAsync(() -> {
-            var result = new ArrayList<T>();
-
+        return CompletableFuture.supplyAsync(() ->
             DBUtils.useStatement(statement -> {
+                var result = new ArrayList<T>();
+
                 try(var resultSet = statement.executeQuery(sql)) {
                     while(resultSet.next()) {
                         result.add(resultElementCreator.createFrom(resultSet));
@@ -38,10 +39,9 @@ final class DBUtils {
                     ex.printStackTrace();
                     Components.showErrorDialog("SQL Hiba történt!");
                 }
-            });
 
-            return FXCollections.observableArrayList(result);
-        });
+                return FXCollections.observableArrayList(result);
+            }));
     }
 
     public static void update(String sql) {
@@ -56,6 +56,8 @@ final class DBUtils {
                 e.printStackTrace();
                 Components.showErrorDialog("SQL Hiba történt!");
             }
+
+            return null;
         });
     }
 

@@ -8,6 +8,7 @@ public final class Ora {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Név", "nev", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
 
     public final int azonosito;
+    public final int napIndex;
     public final String nap;
     public final String idopont;
     public final String nev;
@@ -17,7 +18,8 @@ public final class Ora {
 
     public Ora(ResultSet result) throws SQLException {
         this.azonosito = result.getInt("azonosito");
-        this.nap = getNapFromIndex(result.getInt("napIndex"));
+        this.napIndex = result.getInt("napIndex");
+        this.nap = getNapFromIndex(this.napIndex);
         this.idopont = result.getString("idopont");
         this.nev = result.getString("nev");
         this.osztaly = new Osztaly(OsztalyDBUtils.TABLE + '.', result);
