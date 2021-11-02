@@ -8,6 +8,7 @@ import javafx.application.*;
 import javafx.collections.*;
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
 import javafx.scene.layout.*;
@@ -32,30 +33,28 @@ public final class Main extends Application {
 
         var classesComboBox = new ComboBox<Osztaly>();
         var teachersComboBox = new ComboBox<Tanar>();
-        var statsLabel = Components.newLabel("Hey");
 
-        var teachersTab = newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
-        var qualificationsTab = newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
-        var roomsTab = newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
-        var subjectsTab = newTab(subjectsTabLabel, TantargyGUIUtils.createTable(), Tantargy.fieldMappings, TantargyGUIUtils::refreshTable);
-        var classesTab = newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
-        var studentsTab = newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
-        var fullTimetableTab = newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
-        var tablesTabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab);
+        var teachersTab = newDBTableTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
+        var qualificationsTab = newDBTableTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
+        var roomsTab = newDBTableTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var subjectsTab = newDBTableTab(subjectsTabLabel, TantargyGUIUtils.createTable(), Tantargy.fieldMappings, TantargyGUIUtils::refreshTable);
+        var classesTab = newDBTableTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
+        var studentsTab = newDBTableTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
+        var fullTimetableTab = newDBTableTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
 
         var teacherTimetableTab = newTab("Tanáronkénti", teacherTimetable, k -> OraGUIUtils.handleTeacherTableSwitch(k, teachersComboBox));
         var classTimetableTab = newTab("Osztályonkénti", classTimetable, k -> OraGUIUtils.handleClassTableSwitch(k, classesComboBox));
-        var timetableTabPane = new TabPane(teacherTimetableTab, classTimetableTab);
 
-        var timetableTab = new Tab("Órarendek", timetableTabPane);
-        var tablesTab = new Tab("Táblák", tablesTabPane);
-        var statsTab = new Tab("Statisztikák", statsLabel);
+        var subjectsFrequencySeries = new XYChart.Series<String, Number>();
+        var subjectsFrequencyTab = newTab("Tantárgyak", StatGUIUtils.createBarChart("Tantárgy", "Gyakoriság", "Tantárgyak Gyakorisága", subjectsFrequencySeries),
+                                          k -> StatGUIUtils.refreshTantargyFrequencyChart(subjectsFrequencySeries));
+
+        var timetableTab = new Tab("Órarendek", newTabPane(teacherTimetableTab, classTimetableTab));
+        var tablesTab = new Tab("Táblák", newTabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab));
+        var statsTab = new Tab("Statisztikák", newTabPane(subjectsFrequencyTab));
 
         var tablesTabBinding = tablesTab.selectedProperty();
-        var mainTabPane = new TabPane(timetableTab, tablesTab, statsTab);
-        mainTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-        timetableTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-        tablesTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        var mainTabPane = newTabPane(timetableTab, tablesTab, statsTab);
 
         var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(mainTabPane));
         addButton.visibleProperty().bind(tablesTabBinding);
@@ -162,14 +161,14 @@ public final class Main extends Application {
         }
     }
 
-    private static<T> Tab newTab(String title, TableView<T> table, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
-        var tab = new Tab(title, table);
+    private static<T> Tab newDBTableTab(String title, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
+        var tab = new Tab(title, content);
         var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
 
         tab.setOnSelectionChanged(e -> {
             if(tab.isSelected()) {
                 Main.loadingLabel.setVisible(true);
-                onSelectedDataRefresher.accept(table);
+                onSelectedDataRefresher.accept(content);
 
                 Main.searchFilterSelectorBox.setItems(filterComboBoxes);
                 Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
@@ -179,17 +178,23 @@ public final class Main extends Application {
         return tab;
     }
 
-    private static<T extends Node> Tab newTab(String title, T table, Consumer<T> onSelectedDataRefresher) {
-        var tab = new Tab(title, table);
+    private static<T extends Node> Tab newTab(String title, T content, Consumer<T> onSelectedDataRefresher) {
+        var tab = new Tab(title, content);
 
         tab.setOnSelectionChanged(e -> {
             if(tab.isSelected()) {
                 Main.loadingLabel.setVisible(true);
-                onSelectedDataRefresher.accept(table);
+                onSelectedDataRefresher.accept(content);
             }
         });
 
         return tab;
+    }
+
+    private static TabPane newTabPane(Tab... tabs) {
+        var pane = new TabPane(tabs);
+        pane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        return pane;
     }
 
     public static void main(String[] args) { launch(); }

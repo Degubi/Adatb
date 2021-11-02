@@ -103,16 +103,16 @@ public final class OraGUIUtils {
     }
 
     public static void refreshTeacherTable(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
-        refreshTimeTable(timetable, () -> OraDBUtils.listFor(teachersComboBox.getValue()));
+        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForTeacher, () -> OraDBUtils.listFor(teachersComboBox.getValue()));
     }
 
     public static void refreshClassTable(GridPane timetable, ComboBox<Osztaly> classesComboBox) {
-        refreshTimeTable(timetable, () -> OraDBUtils.listFor(classesComboBox.getValue()));
+        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForStudent, () -> OraDBUtils.listFor(classesComboBox.getValue()));
     }
 
 
     @SuppressWarnings("boxing")
-    private static void refreshTimeTable(GridPane timetable, Supplier<CompletableFuture<ObservableList<Ora>>> oraListaSupplier) {
+    private static void refreshTimeTable(GridPane timetable, Function<Ora, String> labelCreator, Supplier<CompletableFuture<ObservableList<Ora>>> oraListaSupplier) {
         timetable.getChildren().clear();
         timetable.add(newCenteredLabel("Hétfő"), 0, 0);
         timetable.add(newCenteredLabel("Kedd"), 1, 0);
@@ -123,27 +123,37 @@ public final class OraGUIUtils {
         oraListaSupplier.get()
                         .thenApply(k -> k.stream().collect(Collectors.groupingBy(m -> m.napIndex)))
                         .thenAccept(k -> {
-                            addClassesForDay(0, k, timetable);
-                            addClassesForDay(1, k, timetable);
-                            addClassesForDay(2, k, timetable);
-                            addClassesForDay(3, k, timetable);
-                            addClassesForDay(4, k, timetable);
+                            addClassesForDay(0, labelCreator, k, timetable);
+                            addClassesForDay(1, labelCreator, k, timetable);
+                            addClassesForDay(2, labelCreator, k, timetable);
+                            addClassesForDay(3, labelCreator, k, timetable);
+                            addClassesForDay(4, labelCreator, k, timetable);
                         })
                         .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
+    private static String createTimetableLabelForTeacher(Ora rend) {
+        return "Időpont: " + rend.idopont + "\n" +
+                "Tárgy: " + rend.tantargy.nev + "\n" +
+                "Osztály: " + rend.osztaly.megnevezes + "\n" +
+                "Terem: " + rend.terem.toString();
+    }
+
+    private static String createTimetableLabelForStudent(Ora rend) {
+        return "Időpont: " + rend.idopont + "\n" +
+                "Tárgy: " + rend.tantargy.nev + "\n" +
+                "Tanár: " + rend.tanar.nev + "\n" +
+                "Terem: " + rend.terem.toString();
+    }
+
 
     @SuppressWarnings("boxing")
-    private static void addClassesForDay(int dayIndex, Map<Integer, List<Ora>> data, GridPane timetable) {
+    private static void addClassesForDay(int dayIndex, Function<Ora, String> labelCreator, Map<Integer, List<Ora>> data, GridPane timetable) {
         var kek = data.getOrDefault(dayIndex, List.of());
 
         IntStream.range(0, kek.size())
                  .forEach(rowIndex -> {
-                     var rend = kek.get(rowIndex);
-                     var labelText = "Időpont: " + rend.idopont + "\n" +
-                                     "Tárgy: " + rend.tantargy.nev + "\n" +
-                                     "Osztály: " + rend.osztaly.megnevezes + "\n" +
-                                     "Terem: " + rend.terem.toString();
+                     var labelText = labelCreator.apply(kek.get(rowIndex));
 
                      Platform.runLater(() -> timetable.add(newCenteredLabel(labelText), dayIndex, rowIndex + 1));
                  });
