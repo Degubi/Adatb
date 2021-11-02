@@ -10,6 +10,7 @@ public final class OraDBUtils {
     static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " +
                                                OsztalyDBUtils.TABLE + ".*, " +
                                                TeremDBUtils.TABLE + ".*, " +
+                                               TantargyDBUtils.TABLE + ".*, " +
                                                TanarDBUtils.TABLE + ".szemelyiSzam, " + TanarDBUtils.TABLE + ".nev" +
                                            " FROM " + TABLE +
                                            " INNER JOIN " + OsztalyDBUtils.TABLE +
@@ -17,7 +18,9 @@ public final class OraDBUtils {
                                            " INNER JOIN " + TeremDBUtils.TABLE +
                                                " ON " + TABLE + ".teremAzonosito = " + TeremDBUtils.TABLE + ".azonosito" +
                                            " INNER JOIN " + TanarDBUtils.TABLE +
-                                               " ON " + TABLE + ".tanarSzemelyiSzam = " + TanarDBUtils.TABLE + ".szemelyiSzam";
+                                               " ON " + TABLE + ".tanarSzemelyiSzam = " + TanarDBUtils.TABLE + ".szemelyiSzam" +
+                                           " INNER JOIN " + TantargyDBUtils.TABLE +
+                                               " ON " + TABLE + ".tantargyAzonosito  = " + TantargyDBUtils.TABLE + ".azonosito";
 
     public static CompletableFuture<ObservableList<Ora>> listAll() {
         return DBUtils.list(SELECT_ALL_QUERY, Ora::new);
@@ -52,13 +55,13 @@ public final class OraDBUtils {
     }
 
     @SuppressWarnings("boxing")
-    public static void add(int napIndex, String idopont, String nev, Tanar tanar, Osztaly osztaly, Terem terem) {
-        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, %d, '%s', '%s', '%s', %d, %d)", napIndex, idopont, nev, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito));
+    public static void add(int napIndex, String idopont, Tantargy targy, Tanar tanar, Osztaly osztaly, Terem terem) {
+        DBUtils.update(String.format("INSERT INTO " + TABLE + " VALUES(NULL, %d, '%s', %d, '%s', %d, %d)", napIndex, idopont, targy.azonosito, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito));
     }
 
     @SuppressWarnings("boxing")
-    public static void update(Ora ora, int napIndex, String idopont, String nev, Tanar tanar, Osztaly osztaly, Terem terem) {
-        var toUpdate = String.format("napIndex = %d, idopont = '%s', nev = '%s', tanarSzemelyiSzam = %d, osztalyAzonosito = %d, teremAzonosito = %d", napIndex, idopont, nev, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito);
+    public static void update(Ora ora, int napIndex, String idopont, Tantargy targy, Tanar tanar, Osztaly osztaly, Terem terem) {
+        var toUpdate = String.format("napIndex = %d, idopont = '%s', tantargyAzonosito = %d, tanarSzemelyiSzam = %d, osztalyAzonosito = %d, teremAzonosito = %d", napIndex, idopont, targy.azonosito, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito);
 
         DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + ora.azonosito);
     }

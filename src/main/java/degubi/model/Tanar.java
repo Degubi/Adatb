@@ -33,7 +33,5 @@ public final class Tanar {
 
     //FX-nek label
     @Override
-    public String toString() {
-        return nev + " (" + szemelyiSzam + ")";
-    }
+    public String toString() { return nev + " (" + szemelyiSzam + ")"; }
 }

@@ -17,6 +17,7 @@ public final class Main extends Application {
     private static final String teachersTabLabel = "Tanárok";
     private static final String qualificationsTabLabel = "Képzettségek";
     private static final String roomsTabLabel = "Termek";
+    private static final String subjectsTabLabel = "Tantárgyak";
     private static final String classesTabLabel = "Osztályok";
     private static final String studentsTabLabel = "Diákok";
     private static final String fullTimetableTabLabel = "Órák";
@@ -31,24 +32,27 @@ public final class Main extends Application {
 
         var classesComboBox = new ComboBox<Osztaly>();
         var teachersComboBox = new ComboBox<Tanar>();
+        var statsLabel = Components.newLabel("Hey");
 
         var teachersTab = newTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
         var qualificationsTab = newTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
         var roomsTab = newTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var subjectsTab = newTab(subjectsTabLabel, TantargyGUIUtils.createTable(), Tantargy.fieldMappings, TantargyGUIUtils::refreshTable);
         var classesTab = newTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
         var studentsTab = newTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
         var fullTimetableTab = newTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
+        var tablesTabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab);
+
         var teacherTimetableTab = newTab("Tanáronkénti", teacherTimetable, k -> OraGUIUtils.handleTeacherTableSwitch(k, teachersComboBox));
         var classTimetableTab = newTab("Osztályonkénti", classTimetable, k -> OraGUIUtils.handleClassTableSwitch(k, classesComboBox));
-
         var timetableTabPane = new TabPane(teacherTimetableTab, classTimetableTab);
-        var tablesTabPane = new TabPane(fullTimetableTab, teachersTab, studentsTab, qualificationsTab, roomsTab, classesTab);
 
         var timetableTab = new Tab("Órarendek", timetableTabPane);
         var tablesTab = new Tab("Táblák", tablesTabPane);
+        var statsTab = new Tab("Statisztikák", statsLabel);
 
         var tablesTabBinding = tablesTab.selectedProperty();
-        var mainTabPane = new TabPane(timetableTab, tablesTab);
+        var mainTabPane = new TabPane(timetableTab, tablesTab, statsTab);
         mainTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         timetableTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         tablesTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
@@ -107,16 +111,19 @@ public final class Main extends Application {
     }
 
     @SuppressWarnings("unchecked")
-    private static void handleAddButtonClick(TabPane tabPane) {
-        var table = (TableView<?>) tabPane.getSelectionModel().getSelectedItem().getContent();
+    private static void handleAddButtonClick(TabPane mainTabPane) {
+        var selectedSecondaryTabPane = (TabPane) mainTabPane.getSelectionModel().getSelectedItem().getContent();
+        var selectedSecondLevelTab = selectedSecondaryTabPane.getSelectionModel().getSelectedItem();
+        var table = (TableView<?>) selectedSecondLevelTab.getContent();
 
-        switch(tabPane.getSelectionModel().getSelectedItem().getText()) {
+        switch(selectedSecondLevelTab.getText()) {
             case teachersTabLabel:       TanarGUIUtils.showEditorDialog(null, (TableView<Tanar>) table);           break;
             case qualificationsTabLabel: KepzettsegGUIUtils.showEditorDialog(null, (TableView<Kepzettseg>) table); break;
             case roomsTabLabel:          TeremGUIUtils.showEditorDialog(null, (TableView<Terem>) table);           break;
             case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(null, (TableView<Osztaly>) table);       break;
             case studentsTabLabel:       DiakGUIUtils.showEditorDialog(null, (TableView<Diak>) table);             break;
             case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(null, (TableView<Ora>) table);               break;
+            case subjectsTabLabel:       TantargyGUIUtils.showEditorDialog(null, (TableView<Tantargy>) table);      break;
         }
     }
 
@@ -148,6 +155,9 @@ public final class Main extends Application {
                                                         : () -> DiakGUIUtils.refreshFilteredTable(field, value, (TableView<Diak>) table);
             case fullTimetableTabLabel:  return isEmpty ? () -> OraGUIUtils.refreshTable((TableView<Ora>) table)
                                                         : () -> OraGUIUtils.refreshFilteredTable(field, value, (TableView<Ora>) table);
+
+            case subjectsTabLabel:       return isEmpty ? () -> TantargyGUIUtils.refreshTable((TableView<Tantargy>) table)
+                                                        : () -> TantargyGUIUtils.refreshFilteredTable(field, value, (TableView<Tantargy>) table);
             default: return () -> {};
         }
     }

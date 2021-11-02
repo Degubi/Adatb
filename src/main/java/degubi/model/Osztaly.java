@@ -24,7 +24,5 @@ public final class Osztaly {
 
     //FX-nek label
     @Override
-    public String toString() {
-        return megnevezes;
-    }
+    public String toString() { return megnevezes; }
 }

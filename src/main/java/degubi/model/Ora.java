@@ -5,13 +5,13 @@ import java.sql.*;
 import java.util.*;
 
 public final class Ora {
-    public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Név", "nev", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
+    public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Tantárgy", "targy", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
 
     public final int azonosito;
     public final int napIndex;
     public final String nap;
     public final String idopont;
-    public final String nev;
+    public final Tantargy tantargy;
     public final Tanar tanar;
     public final Osztaly osztaly;
     public final Terem terem;
@@ -21,7 +21,7 @@ public final class Ora {
         this.napIndex = result.getInt("napIndex");
         this.nap = getNapFromIndex(this.napIndex);
         this.idopont = result.getString("idopont");
-        this.nev = result.getString("nev");
+        this.tantargy = new Tantargy(TantargyDBUtils.TABLE + '.', result);
         this.osztaly = new Osztaly(OsztalyDBUtils.TABLE + '.', result);
         this.terem = new Terem(TeremDBUtils.TABLE + '.', result);
         this.tanar = new Tanar(TanarDBUtils.TABLE + '.', result);
@@ -44,7 +44,7 @@ public final class Ora {
     public int getAzonosito() { return azonosito; }
     public String getNap() { return nap; }
     public String getIdopont() { return idopont; }
-    public String getNev() { return nev; }
+    public String getTargy() { return tantargy.nev; }
     public String getOsztaly() { return osztaly.toString(); }
     public String getTerem() { return terem.toString(); }
     public String getTanar() { return tanar.toString(); }

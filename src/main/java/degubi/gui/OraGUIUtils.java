@@ -22,21 +22,21 @@ public final class OraGUIUtils {
     public static void showEditorDialog(Ora toEdit, TableView<Ora> table) {
         var napComboBox = new ComboBox<>(FXCollections.observableArrayList("Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"));
         var idopontField = new TextField();
-        var nevField = new TextField();
+        var tantargyComboBox = new ComboBox<>(TantargyDBUtils.listAll().join());
         var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAll().join());
         var teremComboBox = new ComboBox<>(TeremDBUtils.listAll().join());
         var tanarComboBox = new ComboBox<>(TanarDBUtils.listAll().join());
 
         var okButtonBinding = Components.createEmptyComboBoxBinding(napComboBox)
                                         .or(Components.createTimeFieldBinding(idopontField))
-                                        .or(Components.createEmptyFieldBinding(nevField))
+                                        .or(Components.createEmptyComboBoxBinding(tantargyComboBox))
                                         .or(Components.createEmptyComboBoxBinding(osztalyComboBox))
                                         .or(Components.createEmptyComboBoxBinding(teremComboBox))
                                         .or(Components.createEmptyComboBoxBinding(tanarComboBox));
         if(toEdit != null) {
             napComboBox.setValue(toEdit.nap);
             idopontField.setText(toEdit.idopont);
-            nevField.setText(toEdit.nev);
+            tantargyComboBox.setValue(toEdit.tantargy);
             osztalyComboBox.setValue(toEdit.osztaly);
             teremComboBox.setValue(toEdit.terem);
             tanarComboBox.setValue(toEdit.tanar);
@@ -48,8 +48,8 @@ public final class OraGUIUtils {
         components.add(napComboBox, 1, 0);
         components.add(Components.newLabel("Időpont:"), 0, 1);
         components.add(idopontField, 1, 1);
-        components.add(Components.newLabel("Név:"), 0, 2);
-        components.add(nevField, 1, 2);
+        components.add(Components.newLabel("Tantárgy:"), 0, 2);
+        components.add(tantargyComboBox, 1, 2);
         components.add(Components.newLabel("Osztály"), 0, 3);
         components.add(osztalyComboBox, 1, 3);
         components.add(Components.newLabel("Terem"), 0, 4);
@@ -57,7 +57,7 @@ public final class OraGUIUtils {
         components.add(Components.newLabel("Tanár"), 0, 5);
         components.add(tanarComboBox, 1, 5);
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
-                                                       e -> handleInteractButtonClick(napComboBox, idopontField, nevField, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
+                                                       e -> handleInteractButtonClick(napComboBox, idopontField, tantargyComboBox, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
 
         stage.setScene(new Scene(components, 400, 400));
         stage.setTitle("Új Óra");
@@ -70,7 +70,7 @@ public final class OraGUIUtils {
                                    Components.newNumberColumn("Azonosító", Ora.fieldMappings),
                                    Components.newStringColumn("Nap", Ora.fieldMappings),
                                    Components.newStringColumn("Időpont", Ora.fieldMappings),
-                                   Components.newStringColumn("Név", Ora.fieldMappings),
+                                   Components.newStringColumn("Tantárgy", Ora.fieldMappings),
                                    Components.newStringColumn("Osztály", Ora.fieldMappings),
                                    Components.newStringColumn("Terem", Ora.fieldMappings),
                                    Components.newStringColumn("Tanár", Ora.fieldMappings));
@@ -141,7 +141,7 @@ public final class OraGUIUtils {
                  .forEach(rowIndex -> {
                      var rend = kek.get(rowIndex);
                      var labelText = "Időpont: " + rend.idopont + "\n" +
-                                     "Tárgy: " + rend.nev + "\n" +
+                                     "Tárgy: " + rend.tantargy.nev + "\n" +
                                      "Osztály: " + rend.osztaly.megnevezes + "\n" +
                                      "Terem: " + rend.terem.toString();
 
@@ -150,18 +150,18 @@ public final class OraGUIUtils {
     }
 
     private static Text newCenteredLabel(String text) {
-        var label = new Text(text);
+        var label = Components.newLabel(text);
         GridPane.setHalignment(label, HPos.CENTER);
         return label;
     }
 
-    private static void handleInteractButtonClick(ComboBox<String> napComboBox, TextField idopontField, TextField nevField, ComboBox<Osztaly> osztalyComboBox,
+    private static void handleInteractButtonClick(ComboBox<String> napComboBox, TextField idopontField, ComboBox<Tantargy> tantargyComboBox, ComboBox<Osztaly> osztalyComboBox,
                                                   ComboBox<Terem> teremComboBox, ComboBox<Tanar> tanarComboBox, Ora toEdit, Stage window, TableView<Ora> table) {
         if(toEdit != null) {
-            OraDBUtils.update(toEdit, napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), nevField.getText(),
+            OraDBUtils.update(toEdit, napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), tantargyComboBox.getValue(),
                               tanarComboBox.getValue(), osztalyComboBox.getValue(), teremComboBox.getValue());
         }else {
-            OraDBUtils.add(napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), nevField.getText(),
+            OraDBUtils.add(napComboBox.getSelectionModel().getSelectedIndex(), idopontField.getText(), tantargyComboBox.getValue(),
                            tanarComboBox.getValue(), osztalyComboBox.getValue(), teremComboBox.getValue());
         }
 

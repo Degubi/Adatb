@@ -38,7 +38,5 @@ public final class Terem {
 
     //FX-nek label
     @Override
-    public String toString() {
-        return epuletSzam + ". épület " + teremSzam + ". terem";
-    }
+    public String toString() { return epuletSzam + ". épület " + teremSzam + ". terem"; }
 }
