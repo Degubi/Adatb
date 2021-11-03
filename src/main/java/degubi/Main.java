@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.function.*;
 import javafx.application.*;
 import javafx.collections.*;
+import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.chart.*;
@@ -28,30 +29,36 @@ public final class Main extends Application {
 
     @Override
     public void start(Stage stage) {
+        var timetableTab = new Tab("Órarendek");
+        var tablesTab = new Tab("Táblák");
+        var statsTab = new Tab("Statisztikák");
+
+        var teachersTab = newDBTableTab(teachersTabLabel, tablesTab, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
+        var qualificationsTab = newDBTableTab(qualificationsTabLabel, tablesTab, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
+        var roomsTab = newDBTableTab(roomsTabLabel, tablesTab, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
+        var subjectsTab = newDBTableTab(subjectsTabLabel, tablesTab, TantargyGUIUtils.createTable(), Tantargy.fieldMappings, TantargyGUIUtils::refreshTable);
+        var classesTab = newDBTableTab(classesTabLabel, tablesTab, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
+        var studentsTab = newDBTableTab(studentsTabLabel, tablesTab, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
+        var fullTimetableTab = newDBTableTab(fullTimetableTabLabel, tablesTab, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
+
         var teacherTimetable = Components.newTimetableGridPane();
         var classTimetable = Components.newTimetableGridPane();
-
         var classesComboBox = new ComboBox<Osztaly>();
         var teachersComboBox = new ComboBox<Tanar>();
 
-        var teachersTab = newDBTableTab(teachersTabLabel, TanarGUIUtils.createTable(), Tanar.fieldMappings, TanarGUIUtils::refreshTable);
-        var qualificationsTab = newDBTableTab(qualificationsTabLabel, KepzettsegGUIUtils.createTable(), Kepzettseg.fieldMappings, KepzettsegGUIUtils::refreshTable);
-        var roomsTab = newDBTableTab(roomsTabLabel, TeremGUIUtils.createTable(), Terem.fieldMappings, TeremGUIUtils::refreshTable);
-        var subjectsTab = newDBTableTab(subjectsTabLabel, TantargyGUIUtils.createTable(), Tantargy.fieldMappings, TantargyGUIUtils::refreshTable);
-        var classesTab = newDBTableTab(classesTabLabel, OsztalyGUIUtils.createTable(), Osztaly.fieldMappings, OsztalyGUIUtils::refreshTable);
-        var studentsTab = newDBTableTab(studentsTabLabel, DiakGUIUtils.createTable(), Diak.fieldMappings, DiakGUIUtils::refreshTable);
-        var fullTimetableTab = newDBTableTab(fullTimetableTabLabel, OraGUIUtils.createTable(), Ora.fieldMappings, OraGUIUtils::refreshTable);
-
-        var teacherTimetableTab = newTab("Tanáronkénti", teacherTimetable, k -> OraGUIUtils.handleTeacherTableSwitch(k, teachersComboBox));
-        var classTimetableTab = newTab("Osztályonkénti", classTimetable, k -> OraGUIUtils.handleClassTableSwitch(k, classesComboBox));
+        var teacherTimetableTab = newTab("Tanáronkénti", timetableTab, teacherTimetable, k -> OraGUIUtils.handleTeacherTableSwitch(k, teachersComboBox));
+        var classTimetableTab = newTab("Osztályonkénti", timetableTab, classTimetable, k -> OraGUIUtils.handleClassTableSwitch(k, classesComboBox));
 
         var subjectsFrequencySeries = new XYChart.Series<String, Number>();
-        var subjectsFrequencyTab = newTab("Tantárgyak", StatGUIUtils.createBarChart("Tantárgy", "Gyakoriság", "Tantárgyak Gyakorisága", subjectsFrequencySeries),
+        var subjectsFrequencyTab = newTab("Tantárgyak", statsTab, StatGUIUtils.createBarChart("Tantárgy", "Gyakoriság", "Tantárgyak Gyakorisága", subjectsFrequencySeries),
                                           k -> StatGUIUtils.refreshTantargyFrequencyChart(subjectsFrequencySeries));
 
-        var timetableTab = new Tab("Órarendek", newTabPane(teacherTimetableTab, classTimetableTab));
-        var tablesTab = new Tab("Táblák", newTabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab));
-        var statsTab = new Tab("Statisztikák", newTabPane(subjectsFrequencyTab));
+        timetableTab.setContent(newTabPane(teacherTimetableTab, classTimetableTab));
+        timetableTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
+        tablesTab.setContent(newTabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab));
+        tablesTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
+        statsTab.setContent(newTabPane(subjectsFrequencyTab));
+        statsTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
 
         var tablesTabBinding = tablesTab.selectedProperty();
         var mainTabPane = newTabPane(timetableTab, tablesTab, statsTab);
@@ -78,7 +85,7 @@ public final class Main extends Application {
         teachersComboBox.managedProperty().bind(teachersComboBoxBinding);
         teachersComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if(oldVal != null & newVal != null) {
-                OraGUIUtils.refreshTeacherTable(teacherTimetable, teachersComboBox);
+                OraGUIUtils.refreshTeacherTable(teacherTimetable, newVal);
             }
         });
 
@@ -87,14 +94,14 @@ public final class Main extends Application {
         classesComboBox.managedProperty().bind(classesComboBoxBinding);
         classesComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if(oldVal != null & newVal != null) {
-                OraGUIUtils.refreshClassTable(classTimetable, classesComboBox);
+                OraGUIUtils.refreshClassTable(classTimetable, newVal);
             }
         });
 
         var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addButton));
         bottomPanel.setPadding(new Insets(5));
 
-        stage.setTitle("Adatb");
+        stage.setTitle("Órarend");
         stage.setScene(new Scene(new BorderPane(null, mainTabPane, null, bottomPanel, null), 800, 600));
         stage.show();
     }
@@ -123,6 +130,16 @@ public final class Main extends Application {
             case studentsTabLabel:       DiakGUIUtils.showEditorDialog(null, (TableView<Diak>) table);             break;
             case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(null, (TableView<Ora>) table);               break;
             case subjectsTabLabel:       TantargyGUIUtils.showEditorDialog(null, (TableView<Tantargy>) table);      break;
+        }
+    }
+
+    private static void handleTopLevelTabSelection(Event event) {
+        var tab = (Tab) event.getSource();
+
+        if(tab.isSelected()) {
+            var childTabPane = (TabPane) tab.getContent();
+
+            childTabPane.getSelectionModel().getSelectedItem().getOnSelectionChanged().handle(null);
         }
     }
 
@@ -161,12 +178,12 @@ public final class Main extends Application {
         }
     }
 
-    private static<T> Tab newDBTableTab(String title, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
+    private static<T> Tab newDBTableTab(String title, Tab parentTab, TableView<T> content, Map<String, String> filters, Consumer<TableView<T>> onSelectedDataRefresher) {
         var tab = new Tab(title, content);
         var filterComboBoxes = FXCollections.observableArrayList(new TreeSet<>(filters.keySet()));
 
         tab.setOnSelectionChanged(e -> {
-            if(tab.isSelected()) {
+            if(parentTab.isSelected() && tab.isSelected()) {
                 Main.loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
 
@@ -178,11 +195,11 @@ public final class Main extends Application {
         return tab;
     }
 
-    private static<T extends Node> Tab newTab(String title, T content, Consumer<T> onSelectedDataRefresher) {
+    private static<T extends Node> Tab newTab(String title, Tab parentTab, T content, Consumer<T> onSelectedDataRefresher) {
         var tab = new Tab(title, content);
 
         tab.setOnSelectionChanged(e -> {
-            if(tab.isSelected()) {
+            if(parentTab.isSelected() && tab.isSelected()) {
                 Main.loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
             }

@@ -92,22 +92,22 @@ public final class OraGUIUtils {
         teachersComboBox.setItems(TanarDBUtils.listAll().join());
         teachersComboBox.getSelectionModel().selectFirst();
 
-        refreshTeacherTable(timetable, teachersComboBox);
+        refreshTeacherTable(timetable, teachersComboBox.getValue());
     }
 
     public static void handleClassTableSwitch(GridPane timeTable, ComboBox<Osztaly> classesComboBox) {
         classesComboBox.setItems(OsztalyDBUtils.listAll().join());
         classesComboBox.getSelectionModel().selectFirst();
 
-        refreshClassTable(timeTable, classesComboBox);
+        refreshClassTable(timeTable, classesComboBox.getValue());
     }
 
-    public static void refreshTeacherTable(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
-        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForTeacher, () -> OraDBUtils.listFor(teachersComboBox.getValue()));
+    public static void refreshTeacherTable(GridPane timetable, Tanar selected) {
+        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForTeacher, () -> OraDBUtils.listFor(selected));
     }
 
-    public static void refreshClassTable(GridPane timetable, ComboBox<Osztaly> classesComboBox) {
-        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForStudent, () -> OraDBUtils.listFor(classesComboBox.getValue()));
+    public static void refreshClassTable(GridPane timetable, Osztaly selected) {
+        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForStudent, () -> OraDBUtils.listFor(selected));
     }
 
 
