@@ -1,21 +1,22 @@
 package degubi.model;
 
-import java.sql.*;
+import degubi.db.*;
+import degubi.mapping.*;
 import java.util.*;
 
+@MappingTable(TantargyDBUtils.TABLE)
 public final class Tantargy {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Név", "nev");
 
     public final int azonosito;
     public final String nev;
 
-    public Tantargy(ResultSet result) throws SQLException {
-        this("", result);
-    }
+    @MappingConstructor
+    public Tantargy(@MappingParameter("azonosito") int azonosito,
+                    @MappingParameter("nev") String nev) {
 
-    public Tantargy(String prefix, ResultSet result) throws SQLException {
-        this.azonosito = result.getInt(prefix + "azonosito");
-        this.nev = result.getString(prefix + "nev");
+        this.azonosito = azonosito;
+        this.nev = nev;
     }
 
     //FX-nek getterek

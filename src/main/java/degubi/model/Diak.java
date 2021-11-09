@@ -1,9 +1,10 @@
 package degubi.model;
 
 import degubi.db.*;
-import java.sql.*;
+import degubi.mapping.*;
 import java.util.*;
 
+@MappingTable(DiakDBUtils.TABLE)
 public final class Diak {
     public static final Map<String, String> fieldMappings = Map.of("Neptun Kód", "neptunKod", "Osztály", "osztalyMegnevezes", "Név", "nev");
 
@@ -11,10 +12,14 @@ public final class Diak {
     public final Osztaly osztaly;
     public final String nev;
 
-    public Diak(ResultSet result) throws SQLException {
-        this.neptunKod = result.getString("neptunKod");
-        this.osztaly = new Osztaly(OsztalyDBUtils.TABLE + '.', result);
-        this.nev = result.getString("nev");
+    @MappingConstructor
+    public Diak(@MappingParameter("neptunKod") String neptunKod,
+                @MappingParameter("osztaly") Osztaly osztaly,
+                @MappingParameter("nev") String nev) {
+
+        this.neptunKod = neptunKod;
+        this.osztaly = osztaly;
+        this.nev = nev;
     }
 
     //FX-nek getterek

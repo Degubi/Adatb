@@ -13,7 +13,7 @@ public final class StatDBUtils {
                     " GROUP BY " + TantargyDBUtils.TABLE + ".azonosito" +
                     " ORDER BY Frequency DESC";
 
-        return DBUtils.list(query, TantargyFrequencyStat::new);
+        return DBUtils.list(query, TantargyFrequencyStat.class);
     }
 
     private StatDBUtils() {}

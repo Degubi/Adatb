@@ -1,9 +1,10 @@
 package degubi.model;
 
 import degubi.db.*;
-import java.sql.*;
+import degubi.mapping.*;
 import java.util.*;
 
+@MappingTable(TanarDBUtils.TABLE)
 public final class Tanar {
     public static final Map<String, String> fieldMappings = Map.of("Személyi Szám", "szemelyiSzam", "Név", "nev", "Képzettség", "kepzettseg");
 
@@ -11,19 +12,14 @@ public final class Tanar {
     public final String nev;
     public final Kepzettseg kepzettseg;
 
-    public Tanar(ResultSet result) throws SQLException {
-        this("", result);
-    }
+    @MappingConstructor
+    public Tanar(@MappingParameter("szemelyiSzam") String szemelyiSzam,
+                 @MappingParameter("nev") String nev,
+                 @MappingParameter("kepzettseg") Kepzettseg kepzettseg) {
 
-    public Tanar(String prefix, ResultSet result) throws SQLException {
-        this.szemelyiSzam = result.getString(prefix + "szemelyiSzam");
-        this.nev = result.getString(prefix + "nev");
-
-        if(prefix.equals("")) {
-            this.kepzettseg = new Kepzettseg(KepzettsegDBUtils.TABLE + '.', result);
-        }else {
-            this.kepzettseg = null;
-        }
+        this.szemelyiSzam = szemelyiSzam;
+        this.nev = nev;
+        this.kepzettseg = kepzettseg;
     }
 
     //FX-nek getterek

@@ -1,21 +1,22 @@
 package degubi.model;
 
-import java.sql.*;
+import degubi.db.*;
+import degubi.mapping.*;
 import java.util.*;
 
+@MappingTable(OsztalyDBUtils.TABLE)
 public final class Osztaly {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Megnevezés", "megnevezes");
 
     public final int azonosito;
     public final String megnevezes;
 
-    public Osztaly(ResultSet result) throws SQLException {
-        this("", result);
-    }
+    @MappingConstructor
+    public Osztaly(@MappingParameter("azonosito") int azonosito,
+                   @MappingParameter("megnevezes") String megnevezes) {
 
-    public Osztaly(String prefix, ResultSet result) throws SQLException {
-        this.azonosito = result.getInt(prefix + "azonosito");
-        this.megnevezes = result.getString(prefix + "megnevezes");
+        this.azonosito = azonosito;
+        this.megnevezes = megnevezes;
     }
 
     //FX-nek getterek

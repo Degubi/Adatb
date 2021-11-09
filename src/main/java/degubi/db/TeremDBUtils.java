@@ -10,11 +10,11 @@ public final class TeremDBUtils {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE;
 
     public static CompletableFuture<ObservableList<Terem>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Terem::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Terem.class);
     }
 
     public static CompletableFuture<ObservableList<Terem>> listFiltered(String field, String value) {
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Terem::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Terem.class);
     }
 
     @SuppressWarnings("boxing")

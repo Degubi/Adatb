@@ -23,18 +23,20 @@ public final class OraDBUtils {
                                                " ON " + TABLE + ".tantargyAzonosito  = " + TantargyDBUtils.TABLE + ".azonosito";
 
     public static CompletableFuture<ObservableList<Ora>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Ora::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Ora.class);
     }
 
     public static CompletableFuture<ObservableList<Ora>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("osztaly") ? OsztalyDBUtils.TABLE :
                               field.equals("terem") ? TeremDBUtils.TABLE :
+                              field.equals("targy") ? TantargyDBUtils.TABLE :
                               field.equals("tanar") ? TanarDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("osztaly") ? "megnevezes" :
-                           field.equals("terem") ? "azonosito" :
+                           field.equals("terem") ? "teremSzam" :
+                           field.equals("targy") ? "nev" :
                            field.equals("tanar") ? "nev" : field;
 
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Ora::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Ora.class);
     }
 
     public static CompletableFuture<ObservableList<Ora>> listFor(Tanar tanar) {
@@ -42,7 +44,7 @@ public final class OraDBUtils {
                                   " WHERE tanarSzemelyiSzam = '%s'" +
                                   " ORDER BY idopont ASC", tanar.szemelyiSzam);
 
-        return DBUtils.list(query, Ora::new);
+        return DBUtils.list(query, Ora.class);
     }
 
     @SuppressWarnings("boxing")
@@ -51,7 +53,7 @@ public final class OraDBUtils {
                                   " WHERE osztalyAzonosito  = '%s'" +
                                   " ORDER BY idopont ASC", osztaly.azonosito);
 
-        return DBUtils.list(query, Ora::new);
+        return DBUtils.list(query, Ora.class);
     }
 
     @SuppressWarnings("boxing")

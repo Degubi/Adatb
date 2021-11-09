@@ -12,14 +12,14 @@ public final class TanarDBUtils {
                                                    " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito";
 
     public static CompletableFuture<ObservableList<Tanar>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Tanar::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Tanar.class);
     }
 
     public static CompletableFuture<ObservableList<Tanar>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("kepzettseg") ? KepzettsegDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("kepzettseg") ? "megnevezes" : field;
 
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Tanar::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Tanar.class);
     }
 
     @SuppressWarnings("boxing")

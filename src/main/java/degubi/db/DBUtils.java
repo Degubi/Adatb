@@ -1,6 +1,7 @@
 package degubi.db;
 
 import degubi.gui.*;
+import degubi.mapping.*;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -22,7 +23,7 @@ final class DBUtils {
         }
     }
 
-    public static<T> CompletableFuture<ObservableList<T>> list(String sql, ItemCreator<T> resultElementCreator) {
+    public static<T> CompletableFuture<ObservableList<T>> list(String sql, Class<T> resultType) {
         if(LOG_SQL_QUERIES) {
             System.out.println("Listing with query: \"" + sql + "\"");
         }
@@ -33,10 +34,10 @@ final class DBUtils {
 
                 try(var resultSet = statement.executeQuery(sql)) {
                     while(resultSet.next()) {
-                        result.add(resultElementCreator.createFrom(resultSet));
+                        result.add(ObjectMapper.createInstance(resultSet, resultType));
                     }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                     Components.showErrorDialog("SQL Hiba történt!");
                 }
 
@@ -52,7 +53,7 @@ final class DBUtils {
         DBUtils.useStatement(statement -> {
             try {
                 statement.executeUpdate(sql);
-            }catch (SQLException e) {
+            }catch (Exception e) {
                 e.printStackTrace();
                 Components.showErrorDialog("SQL Hiba történt! Hiba: \n" + e.getMessage());
             }
@@ -62,9 +63,4 @@ final class DBUtils {
     }
 
     private DBUtils() {}
-
-    @FunctionalInterface
-    public static interface ItemCreator<T> {
-        T createFrom(ResultSet res) throws SQLException;
-    }
 }

@@ -1,9 +1,11 @@
 package degubi.model;
 
-import java.sql.*;
+import degubi.db.*;
+import degubi.mapping.*;
 import java.util.*;
 import javafx.beans.property.*;
 
+@MappingTable(TeremDBUtils.TABLE)
 public final class Terem {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Épület", "epuletSzam", "Terem", "teremSzam", "Férőhelyek Száma", "ferohelyekSzama", "Van-E Projektor", "vanEProjektor");
 
@@ -15,16 +17,18 @@ public final class Terem {
 
     private final SimpleBooleanProperty vanEProjektorProp;
 
-    public Terem(ResultSet result) throws SQLException {
-        this("", result);
-    }
+    @MappingConstructor
+    public Terem(@MappingParameter("azonosito") int azonosito,
+                 @MappingParameter("teremSzam") int teremSzam,
+                 @MappingParameter("epuletSzam") int epuletSzam,
+                 @MappingParameter("ferohelyekSzama") int ferohelyekSzama,
+                 @MappingParameter("vanEProjektor") boolean vanEProjektor) {
 
-    public Terem(String prefix, ResultSet result) throws SQLException {
-        this.azonosito = result.getInt(prefix + "azonosito");
-        this.teremSzam = result.getInt(prefix + "teremSzam");
-        this.epuletSzam = result.getInt(prefix + "epuletSzam");
-        this.ferohelyekSzama = result.getInt(prefix + "ferohelyekSzama");
-        this.vanEProjektor = result.getBoolean(prefix + "vanEProjektor");
+        this.azonosito = azonosito;
+        this.teremSzam = teremSzam;
+        this.epuletSzam = epuletSzam;
+        this.ferohelyekSzama = ferohelyekSzama;
+        this.vanEProjektor = vanEProjektor;
 
         this.vanEProjektorProp = new SimpleBooleanProperty(vanEProjektor);
     }

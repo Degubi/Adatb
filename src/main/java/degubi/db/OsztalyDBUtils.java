@@ -10,15 +10,15 @@ public final class OsztalyDBUtils {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE;
 
     public static CompletableFuture<ObservableList<Osztaly>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Osztaly::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Osztaly.class);
     }
 
     public static CompletableFuture<ObservableList<Osztaly>> listAllSortedByName() {
-        return DBUtils.list(SELECT_ALL_QUERY + " ORDER BY megnevezes ASC", Osztaly::new);
+        return DBUtils.list(SELECT_ALL_QUERY + " ORDER BY megnevezes ASC", Osztaly.class);
     }
 
     public static CompletableFuture<ObservableList<Osztaly>> listFiltered(String field, String value) {
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Osztaly::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Osztaly.class);
     }
 
     public static void add(String megnevezes) {

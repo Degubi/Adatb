@@ -1,7 +1,6 @@
 package degubi.model;
 
-import degubi.db.*;
-import java.sql.*;
+import degubi.mapping.*;
 import java.util.*;
 
 public final class Ora {
@@ -16,16 +15,26 @@ public final class Ora {
     public final Osztaly osztaly;
     public final Terem terem;
 
-    public Ora(ResultSet result) throws SQLException {
-        this.azonosito = result.getInt("azonosito");
-        this.napIndex = result.getInt("napIndex");
-        this.nap = getNapFromIndex(this.napIndex);
-        this.idopont = result.getString("idopont");
-        this.tantargy = new Tantargy(TantargyDBUtils.TABLE + '.', result);
-        this.osztaly = new Osztaly(OsztalyDBUtils.TABLE + '.', result);
-        this.terem = new Terem(TeremDBUtils.TABLE + '.', result);
-        this.tanar = new Tanar(TanarDBUtils.TABLE + '.', result);
+    @MappingConstructor
+    public Ora(@MappingParameter("azonosito") int azonosito,
+               @MappingParameter("napIndex") int napIndex,
+               @MappingParameter("idopont") String idopont,
+               @MappingParameter("tantargy") Tantargy tantargy,
+               @MappingParameter("tanar") Tanar tanar,
+               @MappingParameter("osztaly") Osztaly osztaly,
+               @MappingParameter("terem") Terem terem) {
+
+        this.azonosito = azonosito;
+        this.napIndex = napIndex;
+        this.nap = getNapFromIndex(napIndex);
+        this.idopont = idopont;
+        this.tantargy = tantargy;
+        this.tanar = tanar;
+        this.osztaly = osztaly;
+        this.terem = terem;
     }
+
+
 
 
     private static String getNapFromIndex(int index) {

@@ -10,11 +10,11 @@ public final class TantargyDBUtils {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE;
 
     public static CompletableFuture<ObservableList<Tantargy>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Tantargy::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Tantargy.class);
     }
 
     public static CompletableFuture<ObservableList<Tantargy>> listFiltered(String field, String value) {
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Tantargy::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Tantargy.class);
     }
 
     public static void add(String nev) {

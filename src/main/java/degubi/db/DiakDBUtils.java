@@ -12,14 +12,14 @@ public final class DiakDBUtils {
                                                    " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito";
 
     public static CompletableFuture<ObservableList<Diak>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Diak::new);
+        return DBUtils.list(SELECT_ALL_QUERY, Diak.class);
     }
 
     public static CompletableFuture<ObservableList<Diak>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("osztalyMegnevezes") ? OsztalyDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("osztalyMegnevezes") ? "megnevezes" : field;
 
-        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Diak::new);
+        return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Diak.class);
     }
 
     @SuppressWarnings("boxing")

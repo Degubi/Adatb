@@ -1,16 +1,19 @@
 package degubi.model.stat;
 
-import java.sql.*;
+import degubi.mapping.*;
 
 public final class TantargyFrequencyStat {
 
-    public final int count;
+    public final long count;
     public final int azonosito;
     public final String nev;
 
-    public TantargyFrequencyStat(ResultSet result) throws SQLException {
-        this.count = result.getInt("Frequency");
-        this.azonosito = result.getInt("tantargy.azonosito");
-        this.nev = result.getString("tantargy.nev");
+    @MappingConstructor
+    public TantargyFrequencyStat(@MappingParameter("Frequency") long count,
+                                 @MappingParameter("tantargy.azonosito") int azonosito,
+                                 @MappingParameter("tantargy.nev") String nev) {
+        this.count = count;
+        this.azonosito = azonosito;
+        this.nev = nev;
     }
 }
