@@ -3,7 +3,6 @@ package degubi.gui;
 import degubi.*;
 import degubi.db.*;
 import degubi.model.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
 
@@ -12,7 +11,7 @@ public final class DiakGUIUtils {
 
     public static void showEditorDialog(Diak toEdit, TableView<Diak> table) {
         var neptunKodField = new TextField();
-        var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAll().join());
+        var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAllSortedByName().join());
         var nevField = new TextField();
 
         var okButtonBinding = Components.createFixedTextFieldLengthBinding(neptunKodField, 6)
@@ -37,10 +36,7 @@ public final class DiakGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(neptunKodField, osztalyComboBox, nevField, toEdit, stage, table )), 0, 6, 2, 1);
 
-        stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Diák");
-        stage.getScene().getRoot().setStyle(Components.windowTheme);
-        stage.show();
+        Components.showEditorWindow("Új Diák", components, stage);
     }
 
     public static TableView<Diak> createTable() {

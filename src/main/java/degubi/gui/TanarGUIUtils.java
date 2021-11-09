@@ -3,7 +3,6 @@ package degubi.gui;
 import degubi.*;
 import degubi.db.*;
 import degubi.model.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
 
@@ -37,10 +36,7 @@ public final class TanarGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(szemelyiField, nevField, kepzettsegComboBox, toEdit, stage, table)), 0, 6, 2, 1);
 
-        stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Tanár");
-        stage.getScene().getRoot().setStyle(Components.windowTheme);
-        stage.show();
+        Components.showEditorWindow("Új Tanár", components, stage);
     }
 
     public static TableView<Tanar> createTable() {

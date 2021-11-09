@@ -13,6 +13,10 @@ public final class OsztalyDBUtils {
         return DBUtils.list(SELECT_ALL_QUERY, Osztaly::new);
     }
 
+    public static CompletableFuture<ObservableList<Osztaly>> listAllSortedByName() {
+        return DBUtils.list(SELECT_ALL_QUERY + " ORDER BY megnevezes ASC", Osztaly::new);
+    }
+
     public static CompletableFuture<ObservableList<Osztaly>> listFiltered(String field, String value) {
         return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE %s LIKE '%%%s%%'", field, value), Osztaly::new);
     }
@@ -22,9 +26,7 @@ public final class OsztalyDBUtils {
     }
 
     public static void update(Osztaly osztaly, String megnevezes) {
-        var toUpdate = String.format("megnevezes = %s", megnevezes);
-
-        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + osztaly.azonosito);
+        DBUtils.update("UPDATE " + TABLE + " SET megnevezes = '" + megnevezes + "' WHERE azonosito = " + osztaly.azonosito);
     }
 
     public static void delete(Osztaly osztaly) {

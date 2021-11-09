@@ -1,4 +1,4 @@
-*.png
+docs/*.png
 *.dia~
 /target/
 /.settings/

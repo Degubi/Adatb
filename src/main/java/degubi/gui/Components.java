@@ -10,6 +10,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.*;
 import javafx.event.*;
 import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
 import javafx.scene.control.cell.*;
@@ -27,6 +28,7 @@ public final class Components {
 
     public static final ImageView dayIcon = new ImageView(new Image(Main.class.getResource("/assets/day.png").toString(), 32, 32, true, true));
     public static final ImageView nightIcon = new ImageView(new Image(Main.class.getResource("/assets/night.png").toString(), 32, 32, true, true));
+    public static final Image logo = new Image(Main.class.getResource("/assets/icon.png").toString());
 
     public static String windowTheme = "";
     public static String textColor = "";
@@ -208,6 +210,14 @@ public final class Components {
                 onConfirm.run();
             }
         });
+    }
+
+    public static void showEditorWindow(String title, GridPane components, Stage stage) {
+        stage.setScene(new Scene(components, 400, 400));
+        stage.setTitle(title);
+        stage.getScene().getRoot().setStyle(Components.windowTheme);
+        stage.getIcons().add(Components.logo);
+        stage.show();
     }
 
     private static final class ButtonTableCell<T> extends TableCell<T, Void> {

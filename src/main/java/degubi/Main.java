@@ -103,6 +103,7 @@ public final class Main extends Application {
 
         stage.setTitle("Órarend");
         stage.setScene(new Scene(new BorderPane(null, mainTabPane, null, bottomPanel, null), 800, 600));
+        stage.getIcons().add(Components.logo);
         stage.show();
     }
 

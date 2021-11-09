@@ -22,9 +22,7 @@ public final class KepzettsegDBUtils {
     }
 
     public static void update(Kepzettseg kepzettseg, String megnevezes) {
-        var toUpdate = String.format("megnevezes = %s", megnevezes);
-
-        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + kepzettseg.azonosito);
+        DBUtils.update("UPDATE " + TABLE + " SET megnevezes = '" + megnevezes + "' WHERE azonosito = " + kepzettseg.azonosito);
     }
 
     public static void delete(Kepzettseg kepzettseg) {

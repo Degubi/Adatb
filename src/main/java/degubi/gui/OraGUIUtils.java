@@ -10,7 +10,6 @@ import java.util.stream.*;
 import javafx.application.*;
 import javafx.collections.*;
 import javafx.geometry.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
@@ -59,10 +58,7 @@ public final class OraGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(napComboBox, idopontField, tantargyComboBox, osztalyComboBox, teremComboBox, tanarComboBox, toEdit, stage, table )), 0, 6, 2, 1);
 
-        stage.setScene(new Scene(components, 400, 400));
-        stage.setTitle("Új Óra");
-        stage.getScene().getRoot().setStyle(Components.windowTheme);
-        stage.show();
+        Components.showEditorWindow("Új Óra", components, stage);
     }
 
     public static TableView<Ora> createTable() {
@@ -103,11 +99,15 @@ public final class OraGUIUtils {
     }
 
     public static void refreshTeacherTable(GridPane timetable, Tanar selected) {
-        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForTeacher, () -> OraDBUtils.listFor(selected));
+        if(selected != null) {
+            refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForTeacher, () -> OraDBUtils.listFor(selected));
+        }
     }
 
     public static void refreshClassTable(GridPane timetable, Osztaly selected) {
-        refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForStudent, () -> OraDBUtils.listFor(selected));
+        if(selected != null) {
+            refreshTimeTable(timetable, OraGUIUtils::createTimetableLabelForStudent, () -> OraDBUtils.listFor(selected));
+        }
     }
 
 

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 07. 19:58
+-- Létrehozás ideje: 2021. Nov 09. 16:11
 -- Kiszolgáló verziója: 10.4.21-MariaDB
--- PHP verzió: 8.0.12
+-- PHP verzió: 7.3.31
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `test`
+-- Adatbázis: `timetable`
 --
 
 -- --------------------------------------------------------
@@ -31,15 +31,15 @@ CREATE TABLE `diak` (
   `neptunKod` varchar(6) NOT NULL,
   `osztalyAzonosito` int(11) NOT NULL,
   `nev` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `diak`
 --
 
 INSERT INTO `diak` (`neptunKod`, `osztalyAzonosito`, `nev`) VALUES
-('ASD123', 2, 'Piros Lili'),
-('MAB123', 3, 'Mézga Géza');
+('MAB123', 5, 'Vasas Piroska'),
+('NEM666', 8, 'Senki se Tudja');
 
 -- --------------------------------------------------------
 
@@ -50,15 +50,18 @@ INSERT INTO `diak` (`neptunKod`, `osztalyAzonosito`, `nev`) VALUES
 CREATE TABLE `kepzettseg` (
   `azonosito` int(11) NOT NULL,
   `megnevezes` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `kepzettseg`
 --
 
 INSERT INTO `kepzettseg` (`azonosito`, `megnevezes`) VALUES
-(3, 'Irodalom Tanár'),
-(4, 'Magyartanár');
+(5, 'Magyartanár'),
+(6, 'Matektanár'),
+(7, 'Lakatos'),
+(8, 'Zenetanár'),
+(9, 'Hittantanár');
 
 -- --------------------------------------------------------
 
@@ -74,15 +77,17 @@ CREATE TABLE `ora` (
   `tanarSzemelyiSzam` varchar(20) NOT NULL,
   `osztalyAzonosito` int(11) NOT NULL,
   `teremAzonosito` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `ora`
 --
 
 INSERT INTO `ora` (`azonosito`, `napIndex`, `idopont`, `tantargyAzonosito`, `tanarSzemelyiSzam`, `osztalyAzonosito`, `teremAzonosito`) VALUES
-(4, 3, '15:20', 1, 'IOLNA123', 3, 1),
-(5, 2, '15:20', 1, 'IOLNA123', 3, 2);
+(6, 4, '20:00', 5, 'NEMTOM', 8, 3),
+(7, 1, '08:00', 4, 'KALIMA', 8, 6),
+(8, 2, '14:00', 6, 'ASDASD', 6, 5),
+(9, 3, '17:30', 8, 'IDC666', 7, 3);
 
 -- --------------------------------------------------------
 
@@ -93,15 +98,19 @@ INSERT INTO `ora` (`azonosito`, `napIndex`, `idopont`, `tantargyAzonosito`, `tan
 CREATE TABLE `osztaly` (
   `azonosito` int(11) NOT NULL,
   `megnevezes` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `osztaly`
 --
 
 INSERT INTO `osztaly` (`azonosito`, `megnevezes`) VALUES
-(2, '9. B'),
-(3, '11. C');
+(4, '9. B'),
+(5, '10. A'),
+(6, '12. C'),
+(7, '11. D'),
+(8, '8. A'),
+(9, '11. A');
 
 -- --------------------------------------------------------
 
@@ -113,14 +122,17 @@ CREATE TABLE `tanar` (
   `szemelyiSzam` varchar(20) NOT NULL,
   `nev` text NOT NULL,
   `kepzettsegAzonosito` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `tanar`
 --
 
 INSERT INTO `tanar` (`szemelyiSzam`, `nev`, `kepzettsegAzonosito`) VALUES
-('IOLNA123', 'Fekete Kefeke', 4);
+('ASDASD', 'Kovács Péter', 7),
+('IDC666', 'Meggyőző Győző', 8),
+('KALIMA', 'Piros Alma', 6),
+('NEMTOM', 'Tehát Jerry', 9);
 
 -- --------------------------------------------------------
 
@@ -131,15 +143,21 @@ INSERT INTO `tanar` (`szemelyiSzam`, `nev`, `kepzettsegAzonosito`) VALUES
 CREATE TABLE `tantargy` (
   `azonosito` int(11) NOT NULL,
   `nev` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `tantargy`
 --
 
 INSERT INTO `tantargy` (`azonosito`, `nev`) VALUES
-(1, 'Irodalom'),
-(2, 'Nyelvtan');
+(3, 'Irodalom'),
+(4, 'Nyelvtan'),
+(5, 'Kalkulus'),
+(6, 'Történelem'),
+(7, 'Földrajz'),
+(8, 'Zene'),
+(9, 'Testnevelés'),
+(10, 'Hittan');
 
 -- --------------------------------------------------------
 
@@ -153,15 +171,17 @@ CREATE TABLE `terem` (
   `epuletSzam` int(11) NOT NULL,
   `ferohelyekSzama` int(11) NOT NULL,
   `vanEProjektor` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- A tábla adatainak kiíratása `terem`
 --
 
 INSERT INTO `terem` (`azonosito`, `teremSzam`, `epuletSzam`, `ferohelyekSzama`, `vanEProjektor`) VALUES
-(1, 52, 13, 53, 1),
-(2, 13, 23, 2, 0);
+(3, 13, 42, 50, 0),
+(4, 42, 69, 21, 1),
+(5, 16, 42, 120, 1),
+(6, 2, 3, 33, 0);
 
 --
 -- Indexek a kiírt táblákhoz
@@ -178,7 +198,8 @@ ALTER TABLE `diak`
 -- A tábla indexei `kepzettseg`
 --
 ALTER TABLE `kepzettseg`
-  ADD PRIMARY KEY (`azonosito`);
+  ADD PRIMARY KEY (`azonosito`),
+  ADD UNIQUE KEY `megnevezes` (`megnevezes`) USING HASH;
 
 --
 -- A tábla indexei `ora`
@@ -194,7 +215,8 @@ ALTER TABLE `ora`
 -- A tábla indexei `osztaly`
 --
 ALTER TABLE `osztaly`
-  ADD PRIMARY KEY (`azonosito`);
+  ADD PRIMARY KEY (`azonosito`),
+  ADD UNIQUE KEY `megnevezes` (`megnevezes`) USING HASH;
 
 --
 -- A tábla indexei `tanar`
@@ -208,7 +230,8 @@ ALTER TABLE `tanar`
 -- A tábla indexei `tantargy`
 --
 ALTER TABLE `tantargy`
-  ADD PRIMARY KEY (`azonosito`);
+  ADD PRIMARY KEY (`azonosito`),
+  ADD UNIQUE KEY `nev` (`nev`) USING HASH;
 
 --
 -- A tábla indexei `terem`
@@ -224,31 +247,31 @@ ALTER TABLE `terem`
 -- AUTO_INCREMENT a táblához `kepzettseg`
 --
 ALTER TABLE `kepzettseg`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `ora`
 --
 ALTER TABLE `ora`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `osztaly`
 --
 ALTER TABLE `osztaly`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT a táblához `tantargy`
 --
 ALTER TABLE `tantargy`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT a táblához `terem`
 --
 ALTER TABLE `terem`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Megkötések a kiírt táblákhoz

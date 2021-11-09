@@ -22,9 +22,7 @@ public final class TantargyDBUtils {
     }
 
     public static void update(Tantargy targy, String nev) {
-        var toUpdate = String.format("nev = %s", nev);
-
-        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + targy.azonosito);
+        DBUtils.update("UPDATE " + TABLE + " SET nev = '" + nev + "' WHERE azonosito = " + targy.azonosito);
     }
 
     public static void delete(Tantargy targy) {

@@ -31,7 +31,7 @@ public final class DiakDBUtils {
     public static void update(Diak diak, Osztaly osztaly, String nev) {
         var toUpdate = String.format("osztalyAzonosito = %d, nev = %s", osztaly.azonosito, nev);
 
-        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE neptunKod = " + diak.neptunKod);
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE neptunKod = '" + diak.neptunKod + "'");
     }
 
     public static void delete(Diak diak) {

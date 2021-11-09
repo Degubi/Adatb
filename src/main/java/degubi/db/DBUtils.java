@@ -11,7 +11,7 @@ final class DBUtils {
     private static final boolean LOG_SQL_QUERIES = true;
 
     private static<T> T useStatement(Function<Statement, T> connectionConsumer) {
-        try(var conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "test", "test123");
+        try(var conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/timetable", "timetable", "gimmecookies");
             var statement = conn.createStatement()) {
 
             return connectionConsumer.apply(statement);
@@ -52,9 +52,9 @@ final class DBUtils {
         DBUtils.useStatement(statement -> {
             try {
                 statement.executeUpdate(sql);
-            } catch (SQLException e) {
+            }catch (SQLException e) {
                 e.printStackTrace();
-                Components.showErrorDialog("SQL Hiba történt!");
+                Components.showErrorDialog("SQL Hiba történt! Hiba: \n" + e.getMessage());
             }
 
             return null;

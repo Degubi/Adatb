@@ -29,9 +29,9 @@ public final class TanarDBUtils {
 
     @SuppressWarnings("boxing")
     public static void update(Tanar tanar, String nev, Kepzettseg kepzettseg) {
-        var toUpdate = String.format("nev = %s, kepzettsegAzonosito = %d", nev, kepzettseg.azonosito);
+        var toUpdate = String.format("nev = '%s', kepzettsegAzonosito = %d", nev, kepzettseg.azonosito);
 
-        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE szemelyiSzam = " + tanar.szemelyiSzam);
+        DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE szemelyiSzam = '" + tanar.szemelyiSzam + "'");
     }
 
     public static void delete(Tanar tanar) {
