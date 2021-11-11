@@ -21,10 +21,10 @@ public final class OraGUIUtils {
     public static void showEditorDialog(Ora toEdit, TableView<Ora> table) {
         var napComboBox = new ComboBox<>(FXCollections.observableArrayList("Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"));
         var idopontField = new TextField();
-        var tantargyComboBox = new ComboBox<>(TantargyDBUtils.listAll().join());
-        var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAll().join());
-        var teremComboBox = new ComboBox<>(TeremDBUtils.listAll().join());
-        var tanarComboBox = new ComboBox<>(TanarDBUtils.listAll().join());
+        var tantargyComboBox = new ComboBox<>(DBUtils.listAll(Tantargy.class).join());
+        var osztalyComboBox = new ComboBox<>(DBUtils.listAll(Osztaly.class).join());
+        var teremComboBox = new ComboBox<>(DBUtils.listAll(Terem.class).join());
+        var tanarComboBox = new ComboBox<>(DBUtils.listAll(Tanar.class).join());
 
         var okButtonBinding = Components.createEmptyComboBoxBinding(napComboBox)
                                         .or(Components.createTimeFieldBinding(idopontField))
@@ -73,26 +73,26 @@ public final class OraGUIUtils {
     }
 
     public static void refreshTable(TableView<Ora> table) {
-        OraDBUtils.listAll()
-                  .thenAccept(table::setItems)
-                  .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Ora.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Ora> table) {
-        OraDBUtils.listFiltered(Ora.fieldMappings.get(fieldName), value)
+    public static void refreshFilteredTable(String labelName, String value, TableView<Ora> table) {
+        OraDBUtils.listFiltered(Ora.fieldMappings.get(labelName), value)
                   .thenAccept(table::setItems)
                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void handleTeacherTableSwitch(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
-        teachersComboBox.setItems(TanarDBUtils.listAll().join());
+        teachersComboBox.setItems(DBUtils.listAll(Tanar.class).join());
         teachersComboBox.getSelectionModel().selectFirst();
 
         refreshTeacherTable(timetable, teachersComboBox.getValue());
     }
 
     public static void handleClassTableSwitch(GridPane timeTable, ComboBox<Osztaly> classesComboBox) {
-        classesComboBox.setItems(OsztalyDBUtils.listAll().join());
+        classesComboBox.setItems(DBUtils.listAll(Osztaly.class).join());
         classesComboBox.getSelectionModel().selectFirst();
 
         refreshClassTable(timeTable, classesComboBox.getValue());
@@ -181,7 +181,7 @@ public final class OraGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Ora> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az órát?", () -> {
-            OraDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

@@ -11,10 +11,6 @@ public final class DiakDBUtils {
                                                    " INNER JOIN " + OsztalyDBUtils.TABLE +
                                                    " ON " + TABLE + ".osztalyAzonosito = " + OsztalyDBUtils.TABLE + ".azonosito";
 
-    public static CompletableFuture<ObservableList<Diak>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Diak.class);
-    }
-
     public static CompletableFuture<ObservableList<Diak>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("osztalyMegnevezes") ? OsztalyDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("osztalyMegnevezes") ? "megnevezes" : field;
@@ -32,10 +28,6 @@ public final class DiakDBUtils {
         var toUpdate = String.format("osztalyAzonosito = %d, nev = %s", osztaly.azonosito, nev);
 
         DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE neptunKod = '" + diak.neptunKod + "'");
-    }
-
-    public static void delete(Diak diak) {
-        DBUtils.update("DELETE FROM " + TABLE + " WHERE neptunKod = '" + diak.neptunKod + "'");
     }
 
     private DiakDBUtils() {}

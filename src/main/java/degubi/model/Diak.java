@@ -8,13 +8,14 @@ import java.util.*;
 public final class Diak {
     public static final Map<String, String> fieldMappings = Map.of("Neptun Kód", "neptunKod", "Osztály", "osztalyMegnevezes", "Név", "nev");
 
+    @MappingPrimaryKey("neptunKod")
     public final String neptunKod;
     public final Osztaly osztaly;
     public final String nev;
 
     @MappingConstructor
     public Diak(@MappingParameter("neptunKod") String neptunKod,
-                @MappingParameter("osztaly") Osztaly osztaly,
+                @MappingParameter(value = "osztaly", localKey = "osztalyAzonosito", foreignKey = "azonosito") Osztaly osztaly,
                 @MappingParameter("nev") String nev) {
 
         this.neptunKod = neptunKod;

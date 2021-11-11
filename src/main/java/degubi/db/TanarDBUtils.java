@@ -11,10 +11,6 @@ public final class TanarDBUtils {
                                                    " INNER JOIN " + KepzettsegDBUtils.TABLE +
                                                    " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito";
 
-    public static CompletableFuture<ObservableList<Tanar>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Tanar.class);
-    }
-
     public static CompletableFuture<ObservableList<Tanar>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("kepzettseg") ? KepzettsegDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("kepzettseg") ? "megnevezes" : field;
@@ -32,10 +28,6 @@ public final class TanarDBUtils {
         var toUpdate = String.format("nev = '%s', kepzettsegAzonosito = %d", nev, kepzettseg.azonosito);
 
         DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE szemelyiSzam = '" + tanar.szemelyiSzam + "'");
-    }
-
-    public static void delete(Tanar tanar) {
-        DBUtils.update("DELETE FROM " + TABLE + " WHERE szemelyiSzam = '" + tanar.szemelyiSzam + "'");
     }
 
     private TanarDBUtils() {}

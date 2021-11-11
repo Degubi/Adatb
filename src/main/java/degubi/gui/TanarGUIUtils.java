@@ -12,7 +12,7 @@ public final class TanarGUIUtils {
     public static void showEditorDialog(Tanar toEdit, TableView<Tanar> table) {
         var szemelyiField = new TextField();
         var nevField = new TextField();
-        var kepzettsegComboBox = new ComboBox<>(KepzettsegDBUtils.listAll().join());
+        var kepzettsegComboBox = new ComboBox<>(DBUtils.listAll(Kepzettseg.class).join());
 
         var okButtonBinding = Components.createEmptyFieldBinding(szemelyiField)
                                         .or(Components.createEmptyFieldBinding(nevField))
@@ -47,13 +47,13 @@ public final class TanarGUIUtils {
     }
 
     public static void refreshTable(TableView<Tanar> table) {
-        TanarDBUtils.listAll()
-                    .thenAccept(table::setItems)
-                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Tanar.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Tanar> table) {
-        TanarDBUtils.listFiltered(Tanar.fieldMappings.get(fieldName), value)
+    public static void refreshFilteredTable(String labelName, String value, TableView<Tanar> table) {
+        TanarDBUtils.listFiltered(Tanar.fieldMappings.get(labelName), value)
                     .thenAccept(table::setItems)
                     .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
@@ -73,7 +73,7 @@ public final class TanarGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Tanar> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az tanárt?", () -> {
-            TanarDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

@@ -6,4 +6,6 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 public @interface MappingParameter {
     String value();
+    String localKey() default "";
+    String foreignKey() default "";
 }

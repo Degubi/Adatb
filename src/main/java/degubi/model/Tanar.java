@@ -8,6 +8,7 @@ import java.util.*;
 public final class Tanar {
     public static final Map<String, String> fieldMappings = Map.of("Személyi Szám", "szemelyiSzam", "Név", "nev", "Képzettség", "kepzettseg");
 
+    @MappingPrimaryKey("szemelyiSzam")
     public final String szemelyiSzam;
     public final String nev;
     public final Kepzettseg kepzettseg;
@@ -15,7 +16,7 @@ public final class Tanar {
     @MappingConstructor
     public Tanar(@MappingParameter("szemelyiSzam") String szemelyiSzam,
                  @MappingParameter("nev") String nev,
-                 @MappingParameter("kepzettseg") Kepzettseg kepzettseg) {
+                 @MappingParameter(value = "kepzettseg", localKey = "kepzettsegAzonosito", foreignKey = "azonosito") Kepzettseg kepzettseg) {
 
         this.szemelyiSzam = szemelyiSzam;
         this.nev = nev;

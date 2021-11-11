@@ -11,7 +11,7 @@ public final class DiakGUIUtils {
 
     public static void showEditorDialog(Diak toEdit, TableView<Diak> table) {
         var neptunKodField = new TextField();
-        var osztalyComboBox = new ComboBox<>(OsztalyDBUtils.listAllSortedByName().join());
+        var osztalyComboBox = new ComboBox<>(DBUtils.listAllOrderedBy("megnevezes", Osztaly.class).join());
         var nevField = new TextField();
 
         var okButtonBinding = Components.createFixedTextFieldLengthBinding(neptunKodField, 6)
@@ -47,13 +47,13 @@ public final class DiakGUIUtils {
     }
 
     public static void refreshTable(TableView<Diak> table) {
-        DiakDBUtils.listAll()
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Diak.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Diak> table) {
-        DiakDBUtils.listFiltered(Diak.fieldMappings.get(fieldName), value)
+    public static void refreshFilteredTable(String labelName, String value, TableView<Diak> table) {
+        DiakDBUtils.listFiltered(Diak.fieldMappings.get(labelName), value)
                    .thenAccept(table::setItems)
                    .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
@@ -73,7 +73,7 @@ public final class DiakGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Diak> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az diákot?", () -> {
-            DiakDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

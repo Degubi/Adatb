@@ -22,10 +22,6 @@ public final class OraDBUtils {
                                            " INNER JOIN " + TantargyDBUtils.TABLE +
                                                " ON " + TABLE + ".tantargyAzonosito  = " + TantargyDBUtils.TABLE + ".azonosito";
 
-    public static CompletableFuture<ObservableList<Ora>> listAll() {
-        return DBUtils.list(SELECT_ALL_QUERY, Ora.class);
-    }
-
     public static CompletableFuture<ObservableList<Ora>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("osztaly") ? OsztalyDBUtils.TABLE :
                               field.equals("terem") ? TeremDBUtils.TABLE :
@@ -66,10 +62,5 @@ public final class OraDBUtils {
         var toUpdate = String.format("napIndex = %d, idopont = '%s', tantargyAzonosito = %d, tanarSzemelyiSzam = %d, osztalyAzonosito = %d, teremAzonosito = %d", napIndex, idopont, targy.azonosito, tanar.szemelyiSzam, osztaly.azonosito, terem.azonosito);
 
         DBUtils.update("UPDATE " + TABLE + " SET " + toUpdate + " WHERE azonosito = " + ora.azonosito);
-    }
-
-    @SuppressWarnings("boxing")
-    public static void delete(Ora ora) {
-        DBUtils.update(String.format("DELETE FROM " + TABLE + " WHERE azonosito = %d", ora.azonosito));
     }
 }

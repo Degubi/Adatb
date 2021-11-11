@@ -8,12 +8,16 @@ public final class ObjectMapper {
     private static final HashMap<Class<?>, MappingReflectionResult<?>> MAPPER_CACHE = new HashMap<>();
 
 
-    public static<T> T createInstance(ResultSet resultSet, Class<T> type) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException {
-        return createInstanceInternal(resultSet, "", type);
+    @SuppressWarnings("unchecked")
+    public static<T> MappingReflectionResult<T> createMapper(Class<T> type) {
+        return (MappingReflectionResult<T>) MAPPER_CACHE.computeIfAbsent(type, MappingReflectionResult::new);
     }
 
-    private static<T> T createInstanceInternal(ResultSet resultSet, String fieldPrefix, Class<T> type) throws SQLException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        var mapper = createMapper(type);
+    public static<T> T createInstance(ResultSet resultSet, MappingReflectionResult<T> mapper) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException {
+        return createInstanceInternal(resultSet, "", mapper);
+    }
+
+    private static<T> T createInstanceInternal(ResultSet resultSet, String fieldPrefix, MappingReflectionResult<T> mapper) throws SQLException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         var parameterFieldNames = mapper.parameterFieldNames;
         var parameterFieldTypes = mapper.parameterTypes;
         var parameterCount = parameterFieldNames.length;
@@ -30,7 +34,7 @@ public final class ObjectMapper {
                 var tablePrefix = nestedMapper.tableName + '.';
 
                 resultParameters[i] = isColumnPresent(resultSet, tablePrefix + nestedMapper.parameterFieldNames[0])
-                                    ? createInstanceInternal(resultSet, tablePrefix, parameterType)
+                                    ? createInstanceInternal(resultSet, tablePrefix, nestedMapper)
                                     : null;
             }
         }
@@ -49,11 +53,6 @@ public final class ObjectMapper {
 
     private static boolean isSQLType(Class<?> type) {
         return type == int.class || type == String.class || type == long.class || type == boolean.class;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static<T> MappingReflectionResult<T> createMapper(Class<T> type) {
-        return (MappingReflectionResult<T>) MAPPER_CACHE.computeIfAbsent(type, MappingReflectionResult::new);
     }
 
     private ObjectMapper() {}

@@ -34,15 +34,15 @@ public final class OsztalyGUIUtils {
     }
 
     public static void refreshTable(TableView<Osztaly> table) {
-        OsztalyDBUtils.listAll()
-                      .thenAccept(table::setItems)
-                      .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Osztaly.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Osztaly> table) {
-        OsztalyDBUtils.listFiltered(Osztaly.fieldMappings.get(fieldName), value)
-                      .thenAccept(table::setItems)
-                      .thenRun(() -> Main.loadingLabel.setVisible(false));
+    public static void refreshFilteredTable(String labelName, String value, TableView<Osztaly> table) {
+        DBUtils.listFiltered(Osztaly.fieldMappings.get(labelName), value, Osztaly.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
@@ -59,7 +59,7 @@ public final class OsztalyGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Osztaly> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az osztályt?", () -> {
-            OsztalyDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

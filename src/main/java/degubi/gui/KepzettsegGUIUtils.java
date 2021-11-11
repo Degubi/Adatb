@@ -34,15 +34,15 @@ public final class KepzettsegGUIUtils {
     }
 
     public static void refreshTable(TableView<Kepzettseg> table) {
-        KepzettsegDBUtils.listAll()
-                         .thenAccept(table::setItems)
-                         .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Kepzettseg.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Kepzettseg> table) {
-        KepzettsegDBUtils.listFiltered(Kepzettseg.fieldMappings.get(fieldName), value)
-                         .thenAccept(table::setItems)
-                         .thenRun(() -> Main.loadingLabel.setVisible(false));
+    public static void refreshFilteredTable(String labelName, String value, TableView<Kepzettseg> table) {
+        DBUtils.listFiltered(Kepzettseg.fieldMappings.get(labelName), value, Kepzettseg.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
@@ -59,7 +59,7 @@ public final class KepzettsegGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Kepzettseg> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az képzettséget?", () -> {
-            KepzettsegDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

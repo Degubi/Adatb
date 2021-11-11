@@ -9,6 +9,7 @@ import javafx.beans.property.*;
 public final class Terem {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Épület", "epuletSzam", "Terem", "teremSzam", "Férőhelyek Száma", "ferohelyekSzama", "Van-E Projektor", "vanEProjektor");
 
+    @MappingPrimaryKey("azonosito")
     public final int azonosito;
     public final int teremSzam;
     public final int epuletSzam;

@@ -8,6 +8,7 @@ import java.util.*;
 public final class Tantargy {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Név", "nev");
 
+    @MappingPrimaryKey("azonosito")
     public final int azonosito;
     public final String nev;
 

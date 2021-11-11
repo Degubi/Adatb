@@ -50,15 +50,15 @@ public final class TeremGUIUtils {
     }
 
     public static void refreshTable(TableView<Terem> table) {
-        TeremDBUtils.listAll()
-                    .thenAccept(table::setItems)
-                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.listAll(Terem.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
-    public static void refreshFilteredTable(String fieldName, String value, TableView<Terem> table) {
-        TeremDBUtils.listFiltered(Terem.fieldMappings.get(fieldName), value)
-                    .thenAccept(table::setItems)
-                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+    public static void refreshFilteredTable(String labelName, String value, TableView<Terem> table) {
+        DBUtils.listFiltered(Terem.fieldMappings.get(labelName), value, Terem.class)
+               .thenAccept(table::setItems)
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
@@ -76,7 +76,7 @@ public final class TeremGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Terem> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az termet?", () -> {
-            TeremDBUtils.delete(table.getItems().get(index));
+            DBUtils.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }
