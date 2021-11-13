@@ -119,5 +119,16 @@ public final class DBUtils {
         });
     }
 
+    public static String getNapFromIndex(int index) {
+        switch(index) {
+            case 0: return "Hétfő";
+            case 1: return "Kedd";
+            case 2: return "Szerda";
+            case 3: return "Csütörtök";
+            case 4: return "Péntek";
+            default: throw new IllegalArgumentException("Unknown day index: " + index);
+        }
+    }
+
     private DBUtils() {}
 }

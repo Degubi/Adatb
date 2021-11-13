@@ -1,5 +1,6 @@
 docs/*.png
-*.dia~
+docs/*.png~
+docs/*.dia~
 /target/
 /.settings/
 .project

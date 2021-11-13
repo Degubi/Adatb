@@ -1,9 +1,0 @@
-Osztály(_azonosító_, megnevezés)
-Képzettség(_azonosító_, megnevezés)
-Terem(_azonosító_, teremSzám, épületSzám, férőhelyekSzáma, van-e projektor)
-Tantárgy(_azonosító_, név)
-
-Tanár(_személyi_szám_, Képzettség._azonosító_, név)
-Diák(_neptun_kód_, Osztály._azonosító_, név)
-
-Óra(_azonosító_, napIndex, időpont, Tantárgy._azonosító_, Tanár._személyi_szám_, Osztály._megnevezés_, Terem._azonosító_)
