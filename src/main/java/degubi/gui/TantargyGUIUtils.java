@@ -48,9 +48,9 @@ public final class TantargyGUIUtils {
 
     private static void handleInteractButtonClick(TextField megnevezesField, Tantargy toEdit, Stage window, TableView<Tantargy> table) {
         if(toEdit != null) {
-            TantargyDBUtils.update(toEdit, megnevezesField.getText());
+            DBUtils.updateExisting(toEdit, new Tantargy(toEdit.azonosito, megnevezesField.getText()));
         }else {
-            TantargyDBUtils.add(megnevezesField.getText());
+            DBUtils.add(new Tantargy(0, megnevezesField.getText()));
         }
 
         window.hide();

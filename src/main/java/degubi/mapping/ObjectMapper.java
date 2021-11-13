@@ -1,59 +1,101 @@
 package degubi.mapping;
 
 import java.lang.reflect.*;
-import java.sql.*;
 import java.util.*;
+import java.util.stream.*;
 
-public final class ObjectMapper {
-    private static final HashMap<Class<?>, MappingReflectionResult<?>> MAPPER_CACHE = new HashMap<>();
+public final class ObjectMapper<T> {
 
+    final Constructor<T> constructor;
+    final Class<?>[] parameterTypes;
+    public final String[] parameterFieldNames;
+    public final String tableName;
+    public final String listAllQuery;
+    public final String primaryKeyFieldName;
+    public final Field primaryKeyField;
+    final Method valuesCreator;
 
     @SuppressWarnings("unchecked")
-    public static<T> MappingReflectionResult<T> createMapper(Class<T> type) {
-        return (MappingReflectionResult<T>) MAPPER_CACHE.computeIfAbsent(type, MappingReflectionResult::new);
-    }
+    public ObjectMapper(Class<T> type) {
+        var constructor = Arrays.stream(type.getDeclaredConstructors())
+                                .filter(k -> k.isAnnotationPresent(MappingConstructor.class))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalStateException("Unable to find mapping constructor in " + type));
 
-    public static<T> T createInstance(ResultSet resultSet, MappingReflectionResult<T> mapper) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException {
-        return createInstanceInternal(resultSet, "", mapper);
-    }
+        var parameters = constructor.getParameters();
+        var parameterCount = parameters.length;
+        var parameterTypes = new Class[parameterCount];
+        var parameterFieldNames = new String[parameterCount];
+        var foreignKeys = new ArrayList<ForeignKeyInfo>();
 
-    private static<T> T createInstanceInternal(ResultSet resultSet, String fieldPrefix, MappingReflectionResult<T> mapper) throws SQLException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        var parameterFieldNames = mapper.parameterFieldNames;
-        var parameterFieldTypes = mapper.parameterTypes;
-        var parameterCount = parameterFieldNames.length;
-        var resultParameters = new Object[parameterCount];
+        var optionalTableNameAnnotation = type.getDeclaredAnnotation(MappingTable.class);
+        var optionalTableName = optionalTableNameAnnotation != null ? optionalTableNameAnnotation.value() : null;
 
         for(var i = 0; i < parameterCount; ++i) {
-            var fieldName = fieldPrefix + parameterFieldNames[i];
-            var parameterType = parameterFieldTypes[i];
+            var parameter = parameters[i];
+            var mappingParamAnnotation = parameter.getDeclaredAnnotation(MappingParameter.class);
+            var mappingField = mappingParamAnnotation.value();
+            var parameterType = parameter.getType();
 
-            if(isSQLType(parameterType)) {
-                resultParameters[i] = resultSet.getObject(fieldName);
-            }else{
-                var nestedMapper = createMapper(parameterType);
-                var tablePrefix = nestedMapper.tableName + '.';
+            parameterTypes[i] = parameterType;
+            parameterFieldNames[i] = mappingField;
 
-                resultParameters[i] = isColumnPresent(resultSet, tablePrefix + nestedMapper.parameterFieldNames[0])
-                                    ? createInstanceInternal(resultSet, tablePrefix, nestedMapper)
-                                    : null;
+            var localKey = mappingParamAnnotation.localKey();
+            var foreignKey = mappingParamAnnotation.foreignKey();
+
+            if(!localKey.isEmpty() && !foreignKey.isEmpty()) {
+                foreignKeys.add(new ForeignKeyInfo(localKey, foreignKey, parameterType.getAnnotation(MappingTable.class).value()));
             }
         }
 
-        return mapper.constructor.newInstance(resultParameters);
+        var primaryKeyField = optionalTableName == null
+                             ? null
+                             : Arrays.stream(type.getDeclaredFields())
+                                     .filter(k -> k.isAnnotationPresent(MappingPrimaryKey.class))
+                                     .findFirst()
+                                     .orElseThrow(() -> new IllegalStateException("Unable to find primary key field in " + type));
+
+        this.parameterTypes = parameterTypes;
+        this.parameterFieldNames = parameterFieldNames;
+        this.constructor = (Constructor<T>) constructor;
+        this.tableName = optionalTableName;
+        this.listAllQuery = optionalTableName != null ? generateListAllQuery(optionalTableName, foreignKeys) : null;
+        this.primaryKeyFieldName = primaryKeyField == null ? null : primaryKeyField.getAnnotation(MappingPrimaryKey.class).value();
+        this.primaryKeyField = primaryKeyField;
+        this.valuesCreator = Arrays.stream(type.getDeclaredMethods())
+                                   .filter(k -> k.isAnnotationPresent(MappingValuesCreator.class))
+                                   .filter(k -> k.getParameterCount() == 0)
+                                   .filter(k -> k.getReturnType() == Map.class)
+                                   .findFirst()
+                                   .orElse(null);
     }
 
-    private static boolean isColumnPresent(ResultSet resultSet, String column) {
-        try {
-            resultSet.findColumn(column);
-            return true;
-        } catch (SQLException e) {
-            return false;
+    private static String generateListAllQuery(String tableName, ArrayList<ForeignKeyInfo> foreignKeys) {
+        var hasForeignObjects = !foreignKeys.isEmpty();
+        var foreignSelects = foreignKeys.stream()
+                                        .map(k -> k.foreignTable + ".*")
+                                        .collect(Collectors.joining(", "));
+
+        var joins = foreignKeys.stream()
+                               .map(k -> "INNER JOIN " + k.foreignTable + " ON " + tableName + '.' + k.localKey + " = " + k.foreignTable + "." + k.foreignKey)
+                               .collect(Collectors.joining(" "));
+
+        var baseSelect = hasForeignObjects ? "SELECT " + tableName + ".*, " + foreignSelects
+                                           : "SELECT *";
+
+        return baseSelect + " FROM " + tableName + (hasForeignObjects ? (' ' + joins) : "");
+    }
+
+    private static final class ForeignKeyInfo {
+
+        public final String localKey;
+        public final String foreignKey;
+        public final String foreignTable;
+
+        public ForeignKeyInfo(String localKey, String foreignKey, String foreignTable) {
+            this.localKey = localKey;
+            this.foreignKey = foreignKey;
+            this.foreignTable = foreignTable;
         }
     }
-
-    private static boolean isSQLType(Class<?> type) {
-        return type == int.class || type == String.class || type == long.class || type == boolean.class;
-    }
-
-    private ObjectMapper() {}
 }

@@ -4,7 +4,7 @@ import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(TantargyDBUtils.TABLE)
+@MappingTable(TableNames.TANTAGY)
 public final class Tantargy {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Név", "nev");
 
@@ -18,6 +18,11 @@ public final class Tantargy {
 
         this.azonosito = azonosito;
         this.nev = nev;
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("azonosito", azonosito, "nev", nev);
     }
 
     //FX-nek getterek

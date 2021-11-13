@@ -7,12 +7,12 @@ import javafx.collections.*;
 public final class TanarDBUtils {
     public static final String TABLE = "tanar";
 
-    private static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " + KepzettsegDBUtils.TABLE + ".* FROM " + TABLE +
-                                                   " INNER JOIN " + KepzettsegDBUtils.TABLE +
-                                                   " ON " + TABLE + ".kepzettsegAzonosito = " + KepzettsegDBUtils.TABLE + ".azonosito";
+    private static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " + TableNames.KEPZETTSEG + ".* FROM " + TABLE +
+                                                   " INNER JOIN " + TableNames.KEPZETTSEG +
+                                                   " ON " + TABLE + ".kepzettsegAzonosito = " + TableNames.KEPZETTSEG + ".azonosito";
 
     public static CompletableFuture<ObservableList<Tanar>> listFiltered(String field, String value) {
-        var tableToFilterIn = field.equals("kepzettseg") ? KepzettsegDBUtils.TABLE : TABLE;
+        var tableToFilterIn = field.equals("kepzettseg") ? TableNames.KEPZETTSEG : TABLE;
         var fieldToCheck = field.equals("kepzettseg") ? "megnevezes" : field;
 
         return DBUtils.list(String.format(SELECT_ALL_QUERY + " WHERE " + tableToFilterIn + ".%s LIKE '%%%s%%'", fieldToCheck, value), Tanar.class);

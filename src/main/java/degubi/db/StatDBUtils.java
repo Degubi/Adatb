@@ -7,10 +7,10 @@ import javafx.collections.*;
 public final class StatDBUtils {
 
     public static CompletableFuture<ObservableList<TantargyFrequencyStat>> getTantargyFrequencyMap() {
-        var query = "SELECT COUNT(" + OraDBUtils.TABLE + ".tantargyAzonosito) as Frequency, " + TantargyDBUtils.TABLE + ".*" +
-                    " FROM " + TantargyDBUtils.TABLE +
-                    " LEFT JOIN " + OraDBUtils.TABLE + " ON " + OraDBUtils.TABLE + ".tantargyAzonosito = " + TantargyDBUtils.TABLE + ".azonosito" +
-                    " GROUP BY " + TantargyDBUtils.TABLE + ".azonosito" +
+        var query = "SELECT COUNT(" + OraDBUtils.TABLE + ".tantargyAzonosito) as Frequency, " + TableNames.TANTAGY + ".*" +
+                    " FROM " + TableNames.TANTAGY +
+                    " LEFT JOIN " + OraDBUtils.TABLE + " ON " + OraDBUtils.TABLE + ".tantargyAzonosito = " + TableNames.TANTAGY + ".azonosito" +
+                    " GROUP BY " + TableNames.TANTAGY + ".azonosito" +
                     " ORDER BY Frequency DESC";
 
         return DBUtils.list(query, TantargyFrequencyStat.class);

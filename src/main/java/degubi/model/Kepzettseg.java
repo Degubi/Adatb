@@ -4,7 +4,7 @@ import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(KepzettsegDBUtils.TABLE)
+@MappingTable(TableNames.KEPZETTSEG)
 public final class Kepzettseg {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Megnevezés", "megnevezes");
 
@@ -18,6 +18,11 @@ public final class Kepzettseg {
 
         this.azonosito = azonosito;
         this.megnevezes = megnevezes;
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("azonosito", azonosito, "megnevezes", megnevezes);
     }
 
     //FX-nek getterek

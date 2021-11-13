@@ -10,7 +10,7 @@ public final class OraDBUtils {
     static final String SELECT_ALL_QUERY = "SELECT " + TABLE + ".*, " +
                                                OsztalyDBUtils.TABLE + ".*, " +
                                                TeremDBUtils.TABLE + ".*, " +
-                                               TantargyDBUtils.TABLE + ".*, " +
+                                               TableNames.TANTAGY + ".*, " +
                                                TanarDBUtils.TABLE + ".szemelyiSzam, " + TanarDBUtils.TABLE + ".nev" +
                                            " FROM " + TABLE +
                                            " INNER JOIN " + OsztalyDBUtils.TABLE +
@@ -19,13 +19,13 @@ public final class OraDBUtils {
                                                " ON " + TABLE + ".teremAzonosito = " + TeremDBUtils.TABLE + ".azonosito" +
                                            " INNER JOIN " + TanarDBUtils.TABLE +
                                                " ON " + TABLE + ".tanarSzemelyiSzam = " + TanarDBUtils.TABLE + ".szemelyiSzam" +
-                                           " INNER JOIN " + TantargyDBUtils.TABLE +
-                                               " ON " + TABLE + ".tantargyAzonosito  = " + TantargyDBUtils.TABLE + ".azonosito";
+                                           " INNER JOIN " + TableNames.TANTAGY +
+                                               " ON " + TABLE + ".tantargyAzonosito  = " + TableNames.TANTAGY + ".azonosito";
 
     public static CompletableFuture<ObservableList<Ora>> listFiltered(String field, String value) {
         var tableToFilterIn = field.equals("osztaly") ? OsztalyDBUtils.TABLE :
                               field.equals("terem") ? TeremDBUtils.TABLE :
-                              field.equals("targy") ? TantargyDBUtils.TABLE :
+                              field.equals("targy") ? TableNames.TANTAGY :
                               field.equals("tanar") ? TanarDBUtils.TABLE : TABLE;
         var fieldToCheck = field.equals("osztaly") ? "megnevezes" :
                            field.equals("terem") ? "teremSzam" :

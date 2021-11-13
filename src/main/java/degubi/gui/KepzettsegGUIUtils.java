@@ -48,9 +48,9 @@ public final class KepzettsegGUIUtils {
 
     private static void handleInteractButtonClick(TextField megnevezesField, Kepzettseg toEdit, Stage window, TableView<Kepzettseg> table) {
         if(toEdit != null) {
-            KepzettsegDBUtils.update(toEdit, megnevezesField.getText());
+            DBUtils.updateExisting(toEdit, new Kepzettseg(toEdit.azonosito, megnevezesField.getText()));
         }else {
-            KepzettsegDBUtils.add(megnevezesField.getText());
+            DBUtils.add(new Kepzettseg(0, megnevezesField.getText()));
         }
 
         window.hide();
