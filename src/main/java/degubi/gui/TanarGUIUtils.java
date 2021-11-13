@@ -2,6 +2,7 @@ package degubi.gui;
 
 import degubi.*;
 import degubi.db.*;
+import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
 import javafx.stage.*;

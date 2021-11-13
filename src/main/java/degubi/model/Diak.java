@@ -1,10 +1,9 @@
 package degubi.model;
 
-import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(DiakDBUtils.TABLE)
+@MappingTable(TableNames.DIAK)
 public final class Diak {
     public static final Map<String, String> fieldMappings = Map.of("Neptun Kód", "neptunKod", "Osztály", "osztalyMegnevezes", "Név", "nev");
 

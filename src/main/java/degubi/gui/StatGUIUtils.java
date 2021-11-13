@@ -1,7 +1,7 @@
 package degubi.gui;
 
 import degubi.*;
-import degubi.db.*;
+import degubi.mapping.*;
 import javafx.application.*;
 import javafx.scene.chart.*;
 
@@ -12,9 +12,9 @@ public final class StatGUIUtils {
     public static void refreshTantargyFrequencyChart(XYChart.Series<String, Number> series) {
         series.getData().clear();
 
-        StatDBUtils.getTantargyFrequencyMap()
-                   .thenAccept(m -> Platform.runLater(() -> m.forEach(k -> series.getData().add(new XYChart.Data<>(k.nev, k.count)))))
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+        DBUtils.getTantargyFrequencyMap()
+               .thenAccept(m -> Platform.runLater(() -> m.forEach(k -> series.getData().add(new XYChart.Data<>(k.nev, k.count)))))
+               .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static BarChart<String, Number> createBarChart(String xAxisLabel, String yAxisLabel, String chartLabel, XYChart.Series<String, Number> series) {

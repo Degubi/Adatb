@@ -1,10 +1,9 @@
 package degubi.model;
 
-import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(TanarDBUtils.TABLE)
+@MappingTable(TableNames.TANAR)
 public final class Tanar {
     public static final Map<String, String> fieldMappings = Map.of("Személyi Szám", "szemelyiSzam", "Név", "nev", "Képzettség", "kepzettseg");
 

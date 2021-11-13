@@ -1,10 +1,9 @@
 package degubi.model;
 
-import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(OraDBUtils.TABLE)
+@MappingTable(TableNames.ORA)
 public final class Ora {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Tantárgy", "targy", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
 

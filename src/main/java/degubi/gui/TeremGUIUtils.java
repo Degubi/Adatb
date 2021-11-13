@@ -1,7 +1,9 @@
 package degubi.gui;
 
+import static java.lang.Integer.*;
+
 import degubi.*;
-import degubi.db.*;
+import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
@@ -65,9 +67,9 @@ public final class TeremGUIUtils {
     private static void handleInteractButtonClick(TextField teremSzamField, TextField epuletSzamField, TextField ferohelyekField, CheckBox vanEProjektorCheckBox,
                                                   Terem toEdit, Stage window, TableView<Terem> table) {
         if(toEdit != null) {
-            TeremDBUtils.update(toEdit, teremSzamField.getText(), epuletSzamField.getText(), ferohelyekField.getText(), vanEProjektorCheckBox.isSelected());
+            DBUtils.update(toEdit, new Terem(toEdit.azonosito, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
         }else {
-            TeremDBUtils.add(teremSzamField.getText(), epuletSzamField.getText(), ferohelyekField.getText(), vanEProjektorCheckBox.isSelected());
+            DBUtils.add(new Terem(0, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
         }
 
         window.hide();

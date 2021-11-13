@@ -1,7 +1,7 @@
 package degubi.gui;
 
 import degubi.*;
-import degubi.db.*;
+import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
@@ -48,7 +48,7 @@ public final class KepzettsegGUIUtils {
 
     private static void handleInteractButtonClick(TextField megnevezesField, Kepzettseg toEdit, Stage window, TableView<Kepzettseg> table) {
         if(toEdit != null) {
-            DBUtils.updateExisting(toEdit, new Kepzettseg(toEdit.azonosito, megnevezesField.getText()));
+            DBUtils.update(toEdit, new Kepzettseg(toEdit.azonosito, megnevezesField.getText()));
         }else {
             DBUtils.add(new Kepzettseg(0, megnevezesField.getText()));
         }

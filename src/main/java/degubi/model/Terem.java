@@ -1,11 +1,10 @@
 package degubi.model;
 
-import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 import javafx.beans.property.*;
 
-@MappingTable(TeremDBUtils.TABLE)
+@MappingTable(TableNames.TEREM)
 public final class Terem {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Épület", "epuletSzam", "Terem", "teremSzam", "Férőhelyek Száma", "ferohelyekSzama", "Van-E Projektor", "vanEProjektor");
 
@@ -32,6 +31,11 @@ public final class Terem {
         this.vanEProjektor = vanEProjektor;
 
         this.vanEProjektorProp = new SimpleBooleanProperty(vanEProjektor);
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("azonosito", azonosito, "teremSzam", teremSzam, "epuletSzam", epuletSzam, "ferohelyekSzama", ferohelyekSzama, "vanEProjektor", vanEProjektor);
     }
 
     //FX-nek getterek

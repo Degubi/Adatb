@@ -1,7 +1,7 @@
 package degubi.gui;
 
 import degubi.*;
-import degubi.db.*;
+import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
 import javafx.stage.*;
@@ -48,9 +48,9 @@ public final class OsztalyGUIUtils {
 
     private static void handleInteractButtonClick(TextField megnevezesField, Osztaly toEdit, Stage window, TableView<Osztaly> table) {
         if(toEdit != null) {
-            OsztalyDBUtils.update(toEdit, megnevezesField.getText());
+            DBUtils.update(toEdit, new Osztaly(toEdit.azonosito, megnevezesField.getText()));
         }else {
-            OsztalyDBUtils.add(megnevezesField.getText());
+            DBUtils.add(new Osztaly(0, megnevezesField.getText()));
         }
 
         window.hide();

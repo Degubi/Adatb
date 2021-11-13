@@ -1,6 +1,5 @@
 package degubi.model;
 
-import degubi.db.*;
 import degubi.mapping.*;
 import java.util.*;
 
