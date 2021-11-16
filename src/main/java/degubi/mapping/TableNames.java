@@ -2,7 +2,7 @@ package degubi.mapping;
 
 public final class TableNames {
     public static final String KEPZETTSEG = "kepzettseg";
-    public static final String TANTAGY = "tantargy";
+    public static final String TANTARGY = "tantargy";
     public static final String TEREM = "terem";
     public static final String TANAR = "tanar";
     public static final String DIAK = "diak";

@@ -1,7 +1,6 @@
 package degubi.gui;
 
 import degubi.*;
-import degubi.db.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -13,7 +12,7 @@ public final class TanarGUIUtils {
     public static void showEditorDialog(Tanar toEdit, TableView<Tanar> table) {
         var szemelyiField = new TextField();
         var nevField = new TextField();
-        var kepzettsegComboBox = new ComboBox<>(DBUtils.listAll(Kepzettseg.class).join());
+        var kepzettsegComboBox = new ComboBox<>(TimetableDB.listAll(Kepzettseg.class).join());
 
         var okButtonBinding = Components.createEmptyFieldBinding(szemelyiField)
                                         .or(Components.createEmptyFieldBinding(nevField))
@@ -37,7 +36,7 @@ public final class TanarGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(szemelyiField, nevField, kepzettsegComboBox, toEdit, stage, table)), 0, 6, 2, 1);
 
-        Components.showEditorWindow("Új Tanár", components, stage);
+        Components.showEditorWindow("Tanár Szerkesztő", components, stage);
     }
 
     public static TableView<Tanar> createTable() {
@@ -48,24 +47,24 @@ public final class TanarGUIUtils {
     }
 
     public static void refreshTable(TableView<Tanar> table) {
-        DBUtils.listAll(Tanar.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listAll(Tanar.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Tanar> table) {
-        TanarDBUtils.listFiltered(Tanar.fieldMappings.get(labelName), value)
-                    .thenAccept(table::setItems)
-                    .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listFilteredTanar(Tanar.fieldMappings.get(labelName), value)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
     private static void handleInteractButtonClick(TextField szemelyiField, TextField nevField, ComboBox<Kepzettseg> kepzettsegComboBox,
                                                   Tanar toEdit, Stage window, TableView<Tanar> table) {
         if(toEdit != null) {
-            TanarDBUtils.update(toEdit, nevField.getText(), kepzettsegComboBox.getValue());
+            TimetableDB.update(toEdit, new Tanar(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue()));
         }else {
-            TanarDBUtils.add(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue());
+            TimetableDB.add(new Tanar(szemelyiField.getText(), nevField.getText(), kepzettsegComboBox.getValue()));
         }
 
         window.hide();
@@ -74,7 +73,7 @@ public final class TanarGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Tanar> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az tanárt?", () -> {
-            DBUtils.delete(table.getItems().get(index));
+            TimetableDB.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

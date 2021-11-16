@@ -7,7 +7,7 @@ import java.util.*;
 public final class Tanar {
     public static final Map<String, String> fieldMappings = Map.of("Személyi Szám", "szemelyiSzam", "Név", "nev", "Képzettség", "kepzettseg");
 
-    @MappingPrimaryKey("szemelyiSzam")
+    @MappingPrimaryKey(value = "szemelyiSzam", autoIncrement = false)
     public final String szemelyiSzam;
     public final String nev;
     public final Kepzettseg kepzettseg;
@@ -20,6 +20,11 @@ public final class Tanar {
         this.szemelyiSzam = szemelyiSzam;
         this.nev = nev;
         this.kepzettseg = kepzettseg;
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("szemelyiSzam", szemelyiSzam, "nev", nev, "kepzettseg", kepzettseg);
     }
 
     //FX-nek getterek

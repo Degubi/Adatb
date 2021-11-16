@@ -39,7 +39,7 @@ public final class TeremGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(teremSzamField, epuletSzamField, ferohelyekField, vanEProjektorCheckBox, toEdit, stage, table)), 0, 6, 2, 1);
 
-        Components.showEditorWindow("Új Terem", components, stage);
+        Components.showEditorWindow("Terem Szerkesztő", components, stage);
     }
 
     public static TableView<Terem> createTable() {
@@ -52,24 +52,24 @@ public final class TeremGUIUtils {
     }
 
     public static void refreshTable(TableView<Terem> table) {
-        DBUtils.listAll(Terem.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listAll(Terem.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Terem> table) {
-        DBUtils.listFiltered(Terem.fieldMappings.get(labelName), value, Terem.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listFiltered(Terem.fieldMappings.get(labelName), value, Terem.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
     private static void handleInteractButtonClick(TextField teremSzamField, TextField epuletSzamField, TextField ferohelyekField, CheckBox vanEProjektorCheckBox,
                                                   Terem toEdit, Stage window, TableView<Terem> table) {
         if(toEdit != null) {
-            DBUtils.update(toEdit, new Terem(toEdit.azonosito, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
+            TimetableDB.update(toEdit, new Terem(toEdit.azonosito, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
         }else {
-            DBUtils.add(new Terem(0, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
+            TimetableDB.add(new Terem(0, parseInt(teremSzamField.getText()), parseInt(epuletSzamField.getText()), parseInt(ferohelyekField.getText()), vanEProjektorCheckBox.isSelected()));
         }
 
         window.hide();
@@ -78,7 +78,7 @@ public final class TeremGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Terem> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az termet?", () -> {
-            DBUtils.delete(table.getItems().get(index));
+            TimetableDB.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

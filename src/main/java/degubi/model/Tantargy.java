@@ -3,11 +3,11 @@ package degubi.model;
 import degubi.mapping.*;
 import java.util.*;
 
-@MappingTable(TableNames.TANTAGY)
+@MappingTable(TableNames.TANTARGY)
 public final class Tantargy {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Név", "nev");
 
-    @MappingPrimaryKey("azonosito")
+    @MappingPrimaryKey(value = "azonosito", autoIncrement = true)
     public final int azonosito;
     public final String nev;
 

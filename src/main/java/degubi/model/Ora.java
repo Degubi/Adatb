@@ -7,7 +7,7 @@ import java.util.*;
 public final class Ora {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Nap", "nap", "Időpont", "idopont", "Tantárgy", "targy", "Osztály", "osztaly", "Terem", "terem", "Tanár", "tanar");
 
-    @MappingPrimaryKey("azonosito")
+    @MappingPrimaryKey(value = "azonosito", autoIncrement = true)
     public final int azonosito;
     public final int napIndex;
     public final String nap;
@@ -28,12 +28,17 @@ public final class Ora {
 
         this.azonosito = azonosito;
         this.napIndex = napIndex;
-        this.nap = DBUtils.getNapFromIndex(napIndex);
+        this.nap = getNapFromIndex(napIndex);
         this.idopont = idopont;
         this.tantargy = tantargy;
         this.tanar = tanar;
         this.osztaly = osztaly;
         this.terem = terem;
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("azonosito", azonosito, "napIndex", napIndex, "nap", nap, "idopont", idopont, "tantargy", tantargy, "tanar", tanar, "osztaly", osztaly, "terem", terem);
     }
 
 
@@ -45,4 +50,16 @@ public final class Ora {
     public String getOsztaly() { return osztaly.toString(); }
     public String getTerem() { return terem.toString(); }
     public String getTanar() { return tanar.toString(); }
+
+
+    private static String getNapFromIndex(int index) {
+        switch(index) {
+            case 0: return "Hétfő";
+            case 1: return "Kedd";
+            case 2: return "Szerda";
+            case 3: return "Csütörtök";
+            case 4: return "Péntek";
+            default: throw new IllegalArgumentException("Unknown day index: " + index);
+        }
+    }
 }

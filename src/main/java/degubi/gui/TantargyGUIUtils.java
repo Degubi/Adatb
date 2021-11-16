@@ -24,7 +24,7 @@ public final class TantargyGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(nevField, toEdit, stage, table)), 0, 6, 2, 1);
 
-        Components.showEditorWindow("Új Képzettség", components, stage);
+        Components.showEditorWindow("Tantárgy Szerkesztő", components, stage);
     }
 
     public static TableView<Tantargy> createTable() {
@@ -34,23 +34,23 @@ public final class TantargyGUIUtils {
     }
 
     public static void refreshTable(TableView<Tantargy> table) {
-        DBUtils.listAll(Tantargy.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listAll(Tantargy.class)
+                  .thenAccept(table::setItems)
+                  .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Tantargy> table) {
-        DBUtils.listFiltered(Tantargy.fieldMappings.get(labelName), value, Tantargy.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listFiltered(Tantargy.fieldMappings.get(labelName), value, Tantargy.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
     private static void handleInteractButtonClick(TextField megnevezesField, Tantargy toEdit, Stage window, TableView<Tantargy> table) {
         if(toEdit != null) {
-            DBUtils.update(toEdit, new Tantargy(toEdit.azonosito, megnevezesField.getText()));
+            TimetableDB.update(toEdit, new Tantargy(toEdit.azonosito, megnevezesField.getText()));
         }else {
-            DBUtils.add(new Tantargy(0, megnevezesField.getText()));
+            TimetableDB.add(new Tantargy(0, megnevezesField.getText()));
         }
 
         window.hide();
@@ -59,7 +59,7 @@ public final class TantargyGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Tantargy> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az képzettséget?", () -> {
-            DBUtils.delete(table.getItems().get(index));
+            TimetableDB.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

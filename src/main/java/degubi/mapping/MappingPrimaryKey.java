@@ -9,4 +9,5 @@ import java.lang.annotation.*;
 @Target(FIELD)
 public @interface MappingPrimaryKey {
     String value();
+    boolean autoIncrement();
 }

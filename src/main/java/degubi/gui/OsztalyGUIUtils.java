@@ -24,7 +24,7 @@ public final class OsztalyGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(megnevezesField, toEdit, stage, table)), 0, 6, 2, 1);
 
-        Components.showEditorWindow("Új Osztály", components, stage);
+        Components.showEditorWindow("Osztály Szerkesztő", components, stage);
     }
 
     public static TableView<Osztaly> createTable() {
@@ -34,23 +34,23 @@ public final class OsztalyGUIUtils {
     }
 
     public static void refreshTable(TableView<Osztaly> table) {
-        DBUtils.listAll(Osztaly.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listAll(Osztaly.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Osztaly> table) {
-        DBUtils.listFiltered(Osztaly.fieldMappings.get(labelName), value, Osztaly.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listFiltered(Osztaly.fieldMappings.get(labelName), value, Osztaly.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
 
     private static void handleInteractButtonClick(TextField megnevezesField, Osztaly toEdit, Stage window, TableView<Osztaly> table) {
         if(toEdit != null) {
-            DBUtils.update(toEdit, new Osztaly(toEdit.azonosito, megnevezesField.getText()));
+            TimetableDB.update(toEdit, new Osztaly(toEdit.azonosito, megnevezesField.getText()));
         }else {
-            DBUtils.add(new Osztaly(0, megnevezesField.getText()));
+            TimetableDB.add(new Osztaly(0, megnevezesField.getText()));
         }
 
         window.hide();
@@ -59,7 +59,7 @@ public final class OsztalyGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Osztaly> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az osztályt?", () -> {
-            DBUtils.delete(table.getItems().get(index));
+            TimetableDB.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

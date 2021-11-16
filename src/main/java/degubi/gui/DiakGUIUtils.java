@@ -1,7 +1,6 @@
 package degubi.gui;
 
 import degubi.*;
-import degubi.db.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -12,7 +11,7 @@ public final class DiakGUIUtils {
 
     public static void showEditorDialog(Diak toEdit, TableView<Diak> table) {
         var neptunKodField = new TextField();
-        var osztalyComboBox = new ComboBox<>(DBUtils.listAllOrderedBy("megnevezes", Osztaly.class).join());
+        var osztalyComboBox = new ComboBox<>(TimetableDB.listAllOrderedBy("megnevezes", Osztaly.class).join());
         var nevField = new TextField();
 
         var okButtonBinding = Components.createFixedTextFieldLengthBinding(neptunKodField, 6)
@@ -37,7 +36,7 @@ public final class DiakGUIUtils {
         components.add(Components.newEditorButtonPanel(toEdit != null, stage, okButtonBinding,
                                                        e -> handleInteractButtonClick(neptunKodField, osztalyComboBox, nevField, toEdit, stage, table )), 0, 6, 2, 1);
 
-        Components.showEditorWindow("Új Diák", components, stage);
+        Components.showEditorWindow("Diák Szerkesztő", components, stage);
     }
 
     public static TableView<Diak> createTable() {
@@ -48,13 +47,13 @@ public final class DiakGUIUtils {
     }
 
     public static void refreshTable(TableView<Diak> table) {
-        DBUtils.listAll(Diak.class)
-               .thenAccept(table::setItems)
-               .thenRun(() -> Main.loadingLabel.setVisible(false));
+        TimetableDB.listAll(Diak.class)
+                   .thenAccept(table::setItems)
+                   .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Diak> table) {
-        DiakDBUtils.listFiltered(Diak.fieldMappings.get(labelName), value)
+        TimetableDB.listFilteredDiak(Diak.fieldMappings.get(labelName), value)
                    .thenAccept(table::setItems)
                    .thenRun(() -> Main.loadingLabel.setVisible(false));
     }
@@ -63,9 +62,9 @@ public final class DiakGUIUtils {
     private static void handleInteractButtonClick(TextField neptunKodField, ComboBox<Osztaly> osztalyComboBox, TextField nevField,
                                                   Diak toEdit, Stage window, TableView<Diak> table) {
         if(toEdit != null) {
-            DiakDBUtils.update(toEdit, osztalyComboBox.getValue(), nevField.getText());
+            TimetableDB.update(toEdit, new Diak(toEdit.neptunKod, osztalyComboBox.getValue(), nevField.getText()));
         }else{
-            DiakDBUtils.add(neptunKodField.getText(), osztalyComboBox.getValue(), nevField.getText());
+            TimetableDB.add(new Diak(neptunKodField.getText(), osztalyComboBox.getValue(), nevField.getText()));
         }
 
         window.hide();
@@ -74,7 +73,7 @@ public final class DiakGUIUtils {
 
     private static void handleDeleteButtonClick(TableView<Diak> table, int index) {
         Components.showConfirmation("Biztos törlöd ezt az diákot?", () -> {
-            DBUtils.delete(table.getItems().get(index));
+            TimetableDB.delete(table.getItems().get(index));
             refreshTable(table);
         });
     }

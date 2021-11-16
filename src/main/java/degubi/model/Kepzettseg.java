@@ -7,7 +7,7 @@ import java.util.*;
 public final class Kepzettseg {
     public static final Map<String, String> fieldMappings = Map.of("Azonosító", "azonosito", "Megnevezés", "megnevezes");
 
-    @MappingPrimaryKey("azonosito")
+    @MappingPrimaryKey(value = "azonosito", autoIncrement = true)
     public final int azonosito;
     public final String megnevezes;
 

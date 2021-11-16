@@ -7,7 +7,7 @@ import java.util.*;
 public final class Diak {
     public static final Map<String, String> fieldMappings = Map.of("Neptun Kód", "neptunKod", "Osztály", "osztalyMegnevezes", "Név", "nev");
 
-    @MappingPrimaryKey("neptunKod")
+    @MappingPrimaryKey(value = "neptunKod", autoIncrement = false)
     public final String neptunKod;
     public final Osztaly osztaly;
     public final String nev;
@@ -20,6 +20,11 @@ public final class Diak {
         this.neptunKod = neptunKod;
         this.osztaly = osztaly;
         this.nev = nev;
+    }
+
+    @MappingValuesCreator
+    public Map<String, Object> createValueMappings() {
+        return Map.of("neptunKod", neptunKod, "osztaly", osztaly, "nev", nev);
     }
 
     //FX-nek getterek

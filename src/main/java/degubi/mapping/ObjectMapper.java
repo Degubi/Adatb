@@ -5,16 +5,18 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
 
-public final class ObjectMapper<T> {
+final class ObjectMapper<T> {
     private static final HashMap<Class<?>, ObjectMapper<?>> MAPPER_CACHE = new HashMap<>();
 
     final Constructor<T> constructor;
     final Class<?>[] parameterTypes;
     public final String[] parameterFieldNames;
+    public final String[] dbFieldNames;
     public final String tableName;
     public final String listAllQuery;
     public final String primaryKeyFieldName;
     public final Field primaryKeyField;
+    public final boolean isPrimaryKeyAutoincremented;
     final Method valuesCreator;
 
     @SuppressWarnings("unchecked")
@@ -28,6 +30,7 @@ public final class ObjectMapper<T> {
         var parameterCount = parameters.length;
         var parameterTypes = new Class[parameterCount];
         var parameterFieldNames = new String[parameterCount];
+        var dbFieldNames = new String[parameterCount];
         var foreignKeys = new ArrayList<ForeignKeyInfo>();
 
         var optionalTableNameAnnotation = type.getDeclaredAnnotation(MappingTable.class);
@@ -38,14 +41,15 @@ public final class ObjectMapper<T> {
             var mappingParamAnnotation = parameter.getDeclaredAnnotation(MappingParameter.class);
             var mappingField = mappingParamAnnotation.value();
             var parameterType = parameter.getType();
+            var localKey = mappingParamAnnotation.localKey();
+            var foreignKey = mappingParamAnnotation.foreignKey();
+            var isForeignKey = !localKey.isEmpty() && !foreignKey.isEmpty();
 
             parameterTypes[i] = parameterType;
             parameterFieldNames[i] = mappingField;
+            dbFieldNames[i] = isForeignKey ? localKey : mappingField;
 
-            var localKey = mappingParamAnnotation.localKey();
-            var foreignKey = mappingParamAnnotation.foreignKey();
-
-            if(!localKey.isEmpty() && !foreignKey.isEmpty()) {
+            if(isForeignKey) {
                 foreignKeys.add(new ForeignKeyInfo(localKey, foreignKey, parameterType.getAnnotation(MappingTable.class).value()));
             }
         }
@@ -59,11 +63,13 @@ public final class ObjectMapper<T> {
 
         this.parameterTypes = parameterTypes;
         this.parameterFieldNames = parameterFieldNames;
+        this.dbFieldNames = dbFieldNames;
         this.constructor = (Constructor<T>) constructor;
         this.tableName = optionalTableName;
         this.listAllQuery = optionalTableName != null ? generateListAllQuery(optionalTableName, foreignKeys) : null;
         this.primaryKeyFieldName = primaryKeyField == null ? null : primaryKeyField.getAnnotation(MappingPrimaryKey.class).value();
         this.primaryKeyField = primaryKeyField;
+        this.isPrimaryKeyAutoincremented = primaryKeyField == null ? false : primaryKeyField.getAnnotation(MappingPrimaryKey.class).autoIncrement();
         this.valuesCreator = Arrays.stream(type.getDeclaredMethods())
                                    .filter(k -> k.isAnnotationPresent(MappingValuesCreator.class))
                                    .filter(k -> k.getParameterCount() == 0)
