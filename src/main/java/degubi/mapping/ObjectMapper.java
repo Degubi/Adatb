@@ -8,16 +8,16 @@ import java.util.stream.*;
 public final class ObjectMapper<T> {
     private static final HashMap<Class<?>, ObjectMapper<?>> MAPPER_CACHE = new HashMap<>();
 
-    final Constructor<T> constructor;
-    final Class<?>[] parameterTypes;
-    public final String[] parameterFieldNames;
-    public final String[] dbFieldNames;
-    public final String tableName;
-    public final String listAllQuery;
-    public final String primaryKeyFieldName;
-    public final Field primaryKeyField;
-    public final boolean isPrimaryKeyAutoincremented;
-    final Method valuesCreator;
+    private final Constructor<T> constructor;
+    private final Class<?>[] parameterTypes;
+    private final String[] parameterFieldNames;
+    private final String[] dbFieldNames;
+    private final String tableName;
+    private final ArrayList<ForeignKeyInfo> foreignKeys;
+    private final String primaryKeyFieldName;
+    private final Field primaryKeyField;
+    private final boolean isPrimaryKeyAutoincremented;
+    private final Method valuesCreator;
 
     @SuppressWarnings("unchecked")
     public ObjectMapper(Class<T> type) {
@@ -66,7 +66,7 @@ public final class ObjectMapper<T> {
         this.dbFieldNames = dbFieldNames;
         this.constructor = (Constructor<T>) constructor;
         this.tableName = optionalTableName;
-        this.listAllQuery = optionalTableName != null ? generateListAllQuery(optionalTableName, foreignKeys) : null;
+        this.foreignKeys = foreignKeys;
         this.primaryKeyFieldName = primaryKeyField == null ? null : primaryKeyField.getAnnotation(MappingPrimaryKey.class).value();
         this.primaryKeyField = primaryKeyField;
         this.isPrimaryKeyAutoincremented = primaryKeyField == null ? false : primaryKeyField.getAnnotation(MappingPrimaryKey.class).autoIncrement();
@@ -84,8 +84,10 @@ public final class ObjectMapper<T> {
         return (ObjectMapper<T>) MAPPER_CACHE.computeIfAbsent(type, ObjectMapper::new);
     }
 
-    private static String generateListAllQuery(String tableName, ArrayList<ForeignKeyInfo> foreignKeys) {
+    public static<T> String generateListAllQuery(ObjectMapper<T> mapper) {
+        var foreignKeys = mapper.foreignKeys;
         var hasForeignObjects = !foreignKeys.isEmpty();
+        var tableName = mapper.tableName;
         var foreignSelects = foreignKeys.stream()
                                         .map(k -> k.foreignTable + ".*")
                                         .collect(Collectors.joining(", "));
@@ -98,6 +100,10 @@ public final class ObjectMapper<T> {
                                            : "SELECT *";
 
         return baseSelect + " FROM " + tableName + (hasForeignObjects ? (' ' + joins) : "");
+    }
+
+    public static<T> String generateListAllQuery(Class<T> type) {
+        return generateListAllQuery(createMapper(type));
     }
 
     public static<T> String generateInsertQuery(T obj) {
@@ -168,10 +174,10 @@ public final class ObjectMapper<T> {
 
         return type == String.class ? "'" + obj + "'" :
                type == Boolean.class ? (((Boolean) obj).booleanValue() ? "1" : "0") :
-               type == Integer.class || type == Long.class ? String.valueOf(obj) : getPrimaryKeyFromNestedObject(type, obj);
+               type == Integer.class || type == Long.class ? String.valueOf(obj) : getPrimaryKeyFromEmbeddedObject(type, obj);
     }
 
-    private static String getPrimaryKeyFromNestedObject(Class<?> type, Object obj) {
+    private static String getPrimaryKeyFromEmbeddedObject(Class<?> type, Object obj) {
         var mapper = ObjectMapper.createMapper(type);
 
         try {
@@ -192,7 +198,7 @@ public final class ObjectMapper<T> {
             var fieldName = fieldPrefix + parameterFieldNames[i];
             var parameterType = parameterFieldTypes[i];
 
-            if(isSQLType(parameterType)) {
+            if(isPrimitiveSQLType(parameterType)) {
                 resultParameters[i] = resultSet.getObject(fieldName);
             }else{
                 var nestedMapper = createMapper(parameterType);
@@ -216,7 +222,7 @@ public final class ObjectMapper<T> {
         }
     }
 
-    private static boolean isSQLType(Class<?> type) {
+    private static boolean isPrimitiveSQLType(Class<?> type) {
         return type == int.class || type == String.class || type == long.class || type == boolean.class;
     }
 

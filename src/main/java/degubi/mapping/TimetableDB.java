@@ -21,19 +21,19 @@ public final class TimetableDB {
     public static<T> CompletableFuture<ObservableList<T>> listAll(Class<T> resultType) {
         var mapper = ObjectMapper.createMapper(resultType);
 
-        return listGenerated(mapper.listAllQuery, mapper);
+        return listGenerated(ObjectMapper.generateListAllQuery(mapper), mapper);
     }
 
     public static<T> CompletableFuture<ObservableList<T>> listAllOrderedBy(String orderByField, Class<T> resultType) {
         var mapper = ObjectMapper.createMapper(resultType);
 
-        return listGenerated(mapper.listAllQuery + " ORDER BY " + orderByField + " ASC", mapper);
+        return listGenerated(ObjectMapper.generateListAllQuery(mapper) + " ORDER BY " + orderByField + " ASC", mapper);
     }
 
     public static<T> CompletableFuture<ObservableList<T>> listFiltered(String field, String value, Class<T> resultType) {
         var mapper = ObjectMapper.createMapper(resultType);
 
-        return listGenerated(mapper.listAllQuery + " WHERE " + field + " LIKE '%" + value + "%'", mapper);
+        return listGenerated(ObjectMapper.generateListAllQuery(mapper) + " WHERE " + field + " LIKE '%" + value + "%'", mapper);
     }
 
 
@@ -64,7 +64,7 @@ public final class TimetableDB {
         var tableToFilterIn = field.equals("osztalyMegnevezes") ? TableNames.OSZTALY : TableNames.DIAK;
         var fieldToCheck = field.equals("osztalyMegnevezes") ? "megnevezes" : field;
 
-        return listCustom(ObjectMapper.createMapper(Diak.class).listAllQuery +
+        return listCustom(ObjectMapper.generateListAllQuery(Diak.class) +
                           " WHERE " + tableToFilterIn + "." + fieldToCheck + " LIKE '%" + value + "%'", Diak.class);
     }
 
@@ -72,7 +72,7 @@ public final class TimetableDB {
         var tableToFilterIn = field.equals("kepzettseg") ? TableNames.KEPZETTSEG : TableNames.TANAR;
         var fieldToCheck = field.equals("kepzettseg") ? "megnevezes" : field;
 
-        return listCustom(ObjectMapper.createMapper(Tanar.class).listAllQuery +
+        return listCustom(ObjectMapper.generateListAllQuery(Tanar.class) +
                           " WHERE " + tableToFilterIn + "." + fieldToCheck + " LIKE '%" + value + "%'", Tanar.class);
     }
 
@@ -86,19 +86,19 @@ public final class TimetableDB {
                            field.equals("targy") ? "nev" :
                            field.equals("tanar") ? "nev" : field;
 
-        return listCustom(ObjectMapper.createMapper(Ora.class).listAllQuery +
+        return listCustom(ObjectMapper.generateListAllQuery(Ora.class) +
                           " WHERE " + tableToFilterIn + "." + fieldToCheck + " LIKE '%" + value + "%'", Ora.class);
     }
 
     public static CompletableFuture<ObservableList<Ora>> listOraFor(Tanar tanar) {
-        return listCustom(ObjectMapper.createMapper(Ora.class).listAllQuery +
+        return listCustom(ObjectMapper.generateListAllQuery(Ora.class) +
                 " WHERE tanarSzemelyiSzam = " + ObjectMapper.formatValueForSQL(tanar.szemelyiSzam) +
                 " ORDER BY idopont ASC", Ora.class);
     }
 
     @SuppressWarnings("boxing")
     public static CompletableFuture<ObservableList<Ora>> listOraFor(Osztaly osztaly) {
-        return listCustom(ObjectMapper.createMapper(Ora.class).listAllQuery +
+        return listCustom(ObjectMapper.generateListAllQuery(Ora.class) +
                           " WHERE osztalyAzonosito = " + ObjectMapper.formatValueForSQL(osztaly.azonosito) +
                           " ORDER BY idopont ASC", Ora.class);
     }
@@ -127,7 +127,7 @@ public final class TimetableDB {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Components.showErrorDialog("SQL Hiba történt!");
+                    Components.showErrorDialog("SQL Hiba történt! Hiba: \n" + e.getMessage());
                 }
 
                 return FXCollections.observableArrayList(result);
