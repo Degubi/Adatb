@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
 
-final class ObjectMapper<T> {
+public final class ObjectMapper<T> {
     private static final HashMap<Class<?>, ObjectMapper<?>> MAPPER_CACHE = new HashMap<>();
 
     final Constructor<T> constructor;
@@ -84,6 +84,71 @@ final class ObjectMapper<T> {
         return (ObjectMapper<T>) MAPPER_CACHE.computeIfAbsent(type, ObjectMapper::new);
     }
 
+    private static String generateListAllQuery(String tableName, ArrayList<ForeignKeyInfo> foreignKeys) {
+        var hasForeignObjects = !foreignKeys.isEmpty();
+        var foreignSelects = foreignKeys.stream()
+                                        .map(k -> k.foreignTable + ".*")
+                                        .collect(Collectors.joining(", "));
+
+        var joins = foreignKeys.stream()
+                               .map(k -> "INNER JOIN " + k.foreignTable + " ON " + tableName + '.' + k.localKey + " = " + k.foreignTable + "." + k.foreignKey)
+                               .collect(Collectors.joining(" "));
+
+        var baseSelect = hasForeignObjects ? "SELECT " + tableName + ".*, " + foreignSelects
+                                           : "SELECT *";
+
+        return baseSelect + " FROM " + tableName + (hasForeignObjects ? (' ' + joins) : "");
+    }
+
+    public static<T> String generateInsertQuery(T obj) {
+        @SuppressWarnings("unchecked")
+        var mapper = ObjectMapper.createMapper((Class<T>) obj.getClass());
+        var valuesMap = ObjectMapper.createFieldValuesMap(mapper, obj);
+        var fieldNames = mapper.parameterFieldNames;
+        var valuesString = IntStream.range(0, fieldNames.length)
+                                    .mapToObj(i -> mapper.isPrimaryKeyAutoincremented && fieldNames[i].equals(mapper.primaryKeyFieldName) ? "NULL" : formatValueForSQL(valuesMap.get(fieldNames[i])))
+                                    .collect(Collectors.joining(", "));
+
+        return "INSERT INTO " + mapper.tableName +
+                " (" + String.join(", ", mapper.dbFieldNames) +
+                ") VALUES (" + valuesString + ")";
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T> String generateUpdateQuery(T oldObj, T newObj) {
+        var oldMapper = ObjectMapper.createMapper((Class<T>) oldObj.getClass());
+        var newMapper = ObjectMapper.createMapper((Class<T>) newObj.getClass());
+        var primaryKeyFieldName = newMapper.primaryKeyFieldName;
+        var parameterFieldNames = newMapper.parameterFieldNames;
+        var dbFieldNames = newMapper.dbFieldNames;
+
+        var oldValues = ObjectMapper.createFieldValuesMap(oldMapper, oldObj);
+        var newValues = ObjectMapper.createFieldValuesMap(newMapper, newObj);
+        var setPartString = IntStream.range(0, parameterFieldNames.length)
+                                  .filter(i -> !parameterFieldNames[i].equals(primaryKeyFieldName))
+                                  .mapToObj(i -> dbFieldNames[i] + " = " + formatValueForSQL(newValues.get(parameterFieldNames[i])))
+                                  .collect(Collectors.joining(", "));
+
+        return "UPDATE " + newMapper.tableName +
+               " SET " + setPartString +
+               " WHERE " + primaryKeyFieldName + " = " + formatValueForSQL(oldValues.get(primaryKeyFieldName));
+    }
+
+    public static<T> String generateDeleteQuery(T obj) {
+        var mapper = ObjectMapper.createMapper(obj.getClass());
+        var keyField = mapper.primaryKeyField;
+
+        try {
+            var keyValue = keyField.get(obj);
+            var sqlKeyValue = keyField.getType() == String.class ? "'" + keyValue + "'" : keyValue;
+
+            return "DELETE FROM " + mapper.tableName + " WHERE " + mapper.primaryKeyFieldName + " = " + sqlKeyValue;
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Unable to generate delete query!");
+        }
+    }
+
     public static<T> T createInstance(ResultSet resultSet, ObjectMapper<T> mapper) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException {
         return createInstanceInternal(resultSet, "", mapper);
     }
@@ -95,6 +160,25 @@ final class ObjectMapper<T> {
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
             throw new IllegalStateException("Unable to create value mappings for: " + obj.getClass());
+        }
+    }
+
+    public static String formatValueForSQL(Object obj) {
+        var type = obj.getClass();
+
+        return type == String.class ? "'" + obj + "'" :
+               type == Boolean.class ? (((Boolean) obj).booleanValue() ? "1" : "0") :
+               type == Integer.class || type == Long.class ? String.valueOf(obj) : getPrimaryKeyFromNestedObject(type, obj);
+    }
+
+    private static String getPrimaryKeyFromNestedObject(Class<?> type, Object obj) {
+        var mapper = ObjectMapper.createMapper(type);
+
+        try {
+            return formatValueForSQL(mapper.primaryKeyField.get(obj));
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Wut");
         }
     }
 
@@ -134,22 +218,6 @@ final class ObjectMapper<T> {
 
     private static boolean isSQLType(Class<?> type) {
         return type == int.class || type == String.class || type == long.class || type == boolean.class;
-    }
-
-    private static String generateListAllQuery(String tableName, ArrayList<ForeignKeyInfo> foreignKeys) {
-        var hasForeignObjects = !foreignKeys.isEmpty();
-        var foreignSelects = foreignKeys.stream()
-                                        .map(k -> k.foreignTable + ".*")
-                                        .collect(Collectors.joining(", "));
-
-        var joins = foreignKeys.stream()
-                               .map(k -> "INNER JOIN " + k.foreignTable + " ON " + tableName + '.' + k.localKey + " = " + k.foreignTable + "." + k.foreignKey)
-                               .collect(Collectors.joining(" "));
-
-        var baseSelect = hasForeignObjects ? "SELECT " + tableName + ".*, " + foreignSelects
-                                           : "SELECT *";
-
-        return baseSelect + " FROM " + tableName + (hasForeignObjects ? (' ' + joins) : "");
     }
 
 

@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.*;
-import java.util.stream.*;
 import javafx.collections.*;
 
 public final class TimetableDB {
@@ -38,52 +37,16 @@ public final class TimetableDB {
     }
 
 
-    @SuppressWarnings("unchecked")
     public static<T> void add(T toAdd) {
-        var mapper = ObjectMapper.createMapper((Class<T>) toAdd.getClass());
-        var valuesMap = ObjectMapper.createFieldValuesMap(mapper, toAdd);
-        var fieldNames = mapper.parameterFieldNames;
-        var valuesString = IntStream.range(0, fieldNames.length)
-                                    .mapToObj(i -> mapper.isPrimaryKeyAutoincremented && fieldNames[i].equals(mapper.primaryKeyFieldName) ? "NULL" : formatObjectForSQL(valuesMap.get(fieldNames[i])))
-                                    .collect(Collectors.joining(", "));
-
-        updateGenerated("INSERT INTO " + mapper.tableName +
-                        " (" + String.join(", ", mapper.dbFieldNames) +
-                        ") VALUES (" + valuesString + ")");
+        updateGenerated(ObjectMapper.generateInsertQuery(toAdd));
     }
 
-    @SuppressWarnings("unchecked")
     public static<T> void update(T oldObj, T newObj) {
-        var oldMapper = ObjectMapper.createMapper((Class<T>) oldObj.getClass());
-        var newMapper = ObjectMapper.createMapper((Class<T>) newObj.getClass());
-        var primaryKeyFieldName = newMapper.primaryKeyFieldName;
-        var parameterFieldNames = newMapper.parameterFieldNames;
-        var dbFieldNames = newMapper.dbFieldNames;
-
-        var oldValues = ObjectMapper.createFieldValuesMap(oldMapper, oldObj);
-        var newValues = ObjectMapper.createFieldValuesMap(newMapper, newObj);
-        var setPartString = IntStream.range(0, parameterFieldNames.length)
-                                  .filter(i -> !parameterFieldNames[i].equals(primaryKeyFieldName))
-                                  .mapToObj(i -> dbFieldNames[i] + " = " + formatObjectForSQL(newValues.get(parameterFieldNames[i])))
-                                  .collect(Collectors.joining(", "));
-
-        updateGenerated("UPDATE " + newMapper.tableName +
-                        " SET " + setPartString +
-                        " WHERE " + primaryKeyFieldName + " = " + formatObjectForSQL(oldValues.get(primaryKeyFieldName)));
+        updateGenerated(ObjectMapper.generateUpdateQuery(oldObj, newObj));
     }
 
     public static void delete(Object toDelete) {
-        var mapper = ObjectMapper.createMapper(toDelete.getClass());
-        var keyField = mapper.primaryKeyField;
-
-        try {
-            var keyValue = keyField.get(toDelete);
-            var sqlKeyValue = keyField.getType() == String.class ? "'" + keyValue + "'" : keyValue;
-
-            updateGenerated("DELETE FROM " + mapper.tableName + " WHERE " + mapper.primaryKeyFieldName + " = " + sqlKeyValue);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        updateGenerated(ObjectMapper.generateDeleteQuery(toDelete));
     }
 
 
@@ -129,36 +92,17 @@ public final class TimetableDB {
 
     public static CompletableFuture<ObservableList<Ora>> listOraFor(Tanar tanar) {
         return listCustom(ObjectMapper.createMapper(Ora.class).listAllQuery +
-                " WHERE tanarSzemelyiSzam = " + formatObjectForSQL(tanar.szemelyiSzam) +
+                " WHERE tanarSzemelyiSzam = " + ObjectMapper.formatValueForSQL(tanar.szemelyiSzam) +
                 " ORDER BY idopont ASC", Ora.class);
     }
 
     @SuppressWarnings("boxing")
     public static CompletableFuture<ObservableList<Ora>> listOraFor(Osztaly osztaly) {
         return listCustom(ObjectMapper.createMapper(Ora.class).listAllQuery +
-                          " WHERE osztalyAzonosito = " + formatObjectForSQL(osztaly.azonosito) +
+                          " WHERE osztalyAzonosito = " + ObjectMapper.formatValueForSQL(osztaly.azonosito) +
                           " ORDER BY idopont ASC", Ora.class);
     }
 
-
-    private static String formatObjectForSQL(Object obj) {
-        var type = obj.getClass();
-
-        return type == String.class ? "'" + obj + "'" :
-               type == Boolean.class ? (((Boolean) obj).booleanValue() ? "1" : "0") :
-               type == Integer.class || type == Long.class ? String.valueOf(obj) : getPrimaryKeyFromNestedObject(type, obj);
-    }
-
-    private static String getPrimaryKeyFromNestedObject(Class<?> type, Object obj) {
-        var mapper = ObjectMapper.createMapper(type);
-
-        try {
-            return formatObjectForSQL(mapper.primaryKeyField.get(obj));
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Wut");
-        }
-    }
 
     private static<T> T useStatement(Function<Statement, T> connectionConsumer) {
         try(var conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PW);
