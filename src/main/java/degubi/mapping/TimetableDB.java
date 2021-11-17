@@ -11,7 +11,7 @@ import javafx.collections.*;
 
 public final class TimetableDB {
     private static final boolean LOG_SQL_QUERIES = true;
-    private static final boolean SIDEEFFECTS_ENABLED = false;
+    private static final boolean SIDEEFFECTS_ENABLED = true;
 
     private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/timetable";
     private static final String DB_USER = "timetable";

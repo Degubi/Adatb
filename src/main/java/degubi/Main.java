@@ -24,7 +24,7 @@ public final class Main extends Application {
     private static final String studentsTabLabel = "Diákok";
     private static final String fullTimetableTabLabel = "Órák";
 
-    public static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
+    private static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
     public static final Label loadingLabel = new Label("Töltés...");
 
     @Override
@@ -185,11 +185,11 @@ public final class Main extends Application {
 
         tab.setOnSelectionChanged(e -> {
             if(parentTab.isSelected() && tab.isSelected()) {
-                Main.loadingLabel.setVisible(true);
+                loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
 
-                Main.searchFilterSelectorBox.setItems(filterComboBoxes);
-                Main.searchFilterSelectorBox.getSelectionModel().selectFirst();
+                searchFilterSelectorBox.setItems(filterComboBoxes);
+                searchFilterSelectorBox.getSelectionModel().selectFirst();
             }
         });
 
@@ -201,7 +201,7 @@ public final class Main extends Application {
 
         tab.setOnSelectionChanged(e -> {
             if(parentTab.isSelected() && tab.isSelected()) {
-                Main.loadingLabel.setVisible(true);
+                loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
             }
         });

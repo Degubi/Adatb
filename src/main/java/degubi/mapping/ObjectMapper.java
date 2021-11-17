@@ -3,6 +3,7 @@ package degubi.mapping;
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 public final class ObjectMapper<T> {
@@ -106,8 +107,8 @@ public final class ObjectMapper<T> {
         return generateListAllQuery(createMapper(type));
     }
 
+    @SuppressWarnings("unchecked")
     public static<T> String generateInsertQuery(T obj) {
-        @SuppressWarnings("unchecked")
         var mapper = ObjectMapper.createMapper((Class<T>) obj.getClass());
         var valuesMap = ObjectMapper.createFieldValuesMap(mapper, obj);
         var fieldNames = mapper.parameterFieldNames;
@@ -155,8 +156,12 @@ public final class ObjectMapper<T> {
         }
     }
 
-    public static<T> T createInstance(ResultSet resultSet, ObjectMapper<T> mapper) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException {
-        return createInstanceInternal(resultSet, "", mapper);
+    public static<T> T createInstance(ResultSet resultSet, ObjectMapper<T> mapper) {
+        return createInstanceInternal(k -> getColumnFromSQLResultSet(resultSet, k), k -> isSQLResultSetColumnPresent(resultSet, k), "", mapper);
+    }
+
+    public static<T> T createInstance(Map<String, Object> fields, Class<T> type) {
+        return createInstanceInternal(k -> getColumnFromValuesMap(fields, k), fields::containsKey, "", createMapper(type));
     }
 
     @SuppressWarnings("unchecked")
@@ -177,6 +182,7 @@ public final class ObjectMapper<T> {
                type == Integer.class || type == Long.class ? String.valueOf(obj) : getPrimaryKeyFromEmbeddedObject(type, obj);
     }
 
+
     private static String getPrimaryKeyFromEmbeddedObject(Class<?> type, Object obj) {
         var mapper = ObjectMapper.createMapper(type);
 
@@ -188,7 +194,7 @@ public final class ObjectMapper<T> {
         }
     }
 
-    private static<T> T createInstanceInternal(ResultSet resultSet, String fieldPrefix, ObjectMapper<T> mapper) throws SQLException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private static<T> T createInstanceInternal(Function<String, Object> fieldExtractor, Predicate<String> isColumnPresentChecker, String fieldPrefix, ObjectMapper<T> mapper) {
         var parameterFieldNames = mapper.parameterFieldNames;
         var parameterFieldTypes = mapper.parameterTypes;
         var parameterCount = parameterFieldNames.length;
@@ -199,21 +205,43 @@ public final class ObjectMapper<T> {
             var parameterType = parameterFieldTypes[i];
 
             if(isPrimitiveSQLType(parameterType)) {
-                resultParameters[i] = resultSet.getObject(fieldName);
+                resultParameters[i] = fieldExtractor.apply(fieldName);
             }else{
                 var nestedMapper = createMapper(parameterType);
                 var tablePrefix = nestedMapper.tableName + '.';
 
-                resultParameters[i] = isColumnPresent(resultSet, tablePrefix + nestedMapper.parameterFieldNames[0])
-                                    ? createInstanceInternal(resultSet, tablePrefix, nestedMapper)
+                resultParameters[i] = isColumnPresentChecker.test(tablePrefix + nestedMapper.parameterFieldNames[0])
+                                    ? createInstanceInternal(fieldExtractor, isColumnPresentChecker, tablePrefix, nestedMapper)
                                     : null;
             }
         }
 
-        return mapper.constructor.newInstance(resultParameters);
+        try {
+            return mapper.constructor.newInstance(resultParameters);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new IllegalStateException("Unable to call " + mapper.constructor);
+        }
     }
 
-    private static boolean isColumnPresent(ResultSet resultSet, String column) {
+    private static Object getColumnFromSQLResultSet(ResultSet resultSet, String column) {
+        try {
+            return resultSet.getObject(column);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Unable to extract column from sql result set: " + column, e);
+        }
+    }
+
+    private static Object getColumnFromValuesMap(Map<String, Object> fields, String field) {
+        var value = fields.get(field);
+
+        if(value == null) {
+            throw new IllegalStateException("Unable to extract column from values map: " + field);
+        }
+
+        return value;
+    }
+
+    private static boolean isSQLResultSetColumnPresent(ResultSet resultSet, String column) {
         try {
             resultSet.findColumn(column);
             return true;
