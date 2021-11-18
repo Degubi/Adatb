@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import java.util.*;
@@ -74,14 +73,12 @@ public final class OraGUIUtils {
 
     public static void refreshTable(TableView<Ora> table) {
         TimetableDB.listAll(Ora.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Ora> table) {
         TimetableDB.listFilteredOra(Ora.fieldMappings.get(labelName), value)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void handleTeacherTableSwitch(GridPane timetable, ComboBox<Tanar> teachersComboBox) {
@@ -128,8 +125,7 @@ public final class OraGUIUtils {
                             addClassesForDay(2, labelCreator, k, timetable);
                             addClassesForDay(3, labelCreator, k, timetable);
                             addClassesForDay(4, labelCreator, k, timetable);
-                        })
-                        .thenRun(() -> Main.loadingLabel.setVisible(false));
+                        });
     }
 
     private static String createTimetableLabelForTeacher(Ora rend) {

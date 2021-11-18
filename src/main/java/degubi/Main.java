@@ -1,6 +1,7 @@
 package degubi;
 
 import degubi.gui.*;
+import degubi.mapping.*;
 import degubi.model.*;
 import java.util.*;
 import java.util.function.*;
@@ -25,7 +26,6 @@ public final class Main extends Application {
     private static final String fullTimetableTabLabel = "Órák";
 
     private static final ComboBox<String> searchFilterSelectorBox = new ComboBox<>();
-    public static final Label loadingLabel = new Label("Töltés...");
 
     @Override
     public void start(Stage stage) {
@@ -53,7 +53,7 @@ public final class Main extends Application {
         var subjectsFrequencyTab = newTab("Tantárgyak", statsTab, StatGUIUtils.createBarChart("Tantárgy", "Gyakoriság", "Tantárgyak Gyakorisága", subjectsFrequencySeries),
                                           k -> StatGUIUtils.refreshTantargyFrequencyChart(subjectsFrequencySeries));
 
-        var classesPerDayChart = StatGUIUtils.createPieChart("Órák eloszlása");
+        var classesPerDayChart = StatGUIUtils.createPieChart("Órák Naponkénti Eloszlása");
         var classesPerDayTab = newTab("Órák", statsTab, classesPerDayChart, k -> StatGUIUtils.refreshClassesPerDayChart(classesPerDayChart));
 
         timetableTab.setContent(newTabPane(teacherTimetableTab, classTimetableTab));
@@ -100,6 +100,9 @@ public final class Main extends Application {
                 OraGUIUtils.refreshClassTable(classTimetable, newVal);
             }
         });
+
+        var loadingLabel = new Label("Töltés...");
+        loadingLabel.visibleProperty().bind(TimetableDB.loading);
 
         var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addRecordButton));
         bottomPanel.setPadding(new Insets(5));
@@ -148,8 +151,6 @@ public final class Main extends Application {
     }
 
     private static void handleSearchFieldTyping(TabPane mainTabPane, TextField searchTextField) {
-        loadingLabel.setVisible(true);
-
         var searchedText = searchTextField.getText();
         var searchedFieldName = searchFilterSelectorBox.getValue();
         var selectedSecondaryTabPane = (TabPane) mainTabPane.getSelectionModel().getSelectedItem().getContent();
@@ -187,7 +188,6 @@ public final class Main extends Application {
 
         tab.setOnSelectionChanged(e -> {
             if(parentTab.isSelected() && tab.isSelected()) {
-                loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
 
                 searchFilterSelectorBox.setItems(filterComboBoxes);
@@ -203,7 +203,6 @@ public final class Main extends Application {
 
         tab.setOnSelectionChanged(e -> {
             if(parentTab.isSelected() && tab.isSelected()) {
-                loadingLabel.setVisible(true);
                 onSelectedDataRefresher.accept(content);
             }
         });

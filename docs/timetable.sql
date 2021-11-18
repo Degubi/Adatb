@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 09. 16:11
+-- Létrehozás ideje: 2021. Nov 18. 21:08
 -- Kiszolgáló verziója: 10.4.21-MariaDB
--- PHP verzió: 7.3.31
+-- PHP verzió: 8.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -38,6 +38,7 @@ CREATE TABLE `diak` (
 --
 
 INSERT INTO `diak` (`neptunKod`, `osztalyAzonosito`, `nev`) VALUES
+('KEK420', 7, 'Balázs Péter'),
 ('MAB123', 5, 'Vasas Piroska'),
 ('NEM666', 8, 'Senki se Tudja');
 
@@ -87,7 +88,17 @@ INSERT INTO `ora` (`azonosito`, `napIndex`, `idopont`, `tantargyAzonosito`, `tan
 (6, 4, '20:00', 5, 'NEMTOM', 8, 3),
 (7, 1, '08:00', 4, 'KALIMA', 8, 6),
 (8, 2, '14:00', 6, 'ASDASD', 6, 5),
-(9, 3, '17:30', 8, 'IDC666', 7, 3);
+(9, 3, '17:30', 8, 'IDC666', 7, 3),
+(10, 0, '08:00', 9, 'NEMTOM', 8, 5),
+(11, 3, '19:20', 8, 'KALIMA', 6, 6),
+(12, 1, '11:30', 4, 'ASDASD', 9, 4),
+(13, 1, '10:30', 8, 'KALIMA', 4, 4),
+(14, 0, '17:15', 3, 'IDC666', 4, 6),
+(15, 4, '07:00', 7, 'NEMTOM', 7, 5),
+(16, 1, '17:30', 5, 'KALIMA', 5, 5),
+(17, 1, '12:15', 9, 'KALIMA', 8, 6),
+(18, 4, '06:00', 5, 'ASDASD', 4, 5),
+(19, 3, '06:00', 5, 'NEMTOM', 9, 3);
 
 -- --------------------------------------------------------
 
@@ -253,7 +264,7 @@ ALTER TABLE `kepzettseg`
 -- AUTO_INCREMENT a táblához `ora`
 --
 ALTER TABLE `ora`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT a táblához `osztaly`

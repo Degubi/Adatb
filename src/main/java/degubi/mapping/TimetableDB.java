@@ -7,15 +7,31 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.*;
+import javafx.beans.property.*;
 import javafx.collections.*;
 
 public final class TimetableDB {
     private static final boolean LOG_SQL_QUERIES = true;
     private static final boolean SIDEEFFECTS_ENABLED = true;
+    private static final boolean PRINT_DB_INFO_ON_START = true;
 
     private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/timetable";
     private static final String DB_USER = "timetable";
     private static final String DB_PW = "gimmecookies";
+
+    private static final Connection ACTIVE_DB_CONNECTION;
+    public static final SimpleBooleanProperty loading = new SimpleBooleanProperty(false);
+
+
+    static {
+        ACTIVE_DB_CONNECTION = tryToConnect();
+
+        if(PRINT_DB_INFO_ON_START) {
+            System.out.println("***************DB Info***************\n" +
+                               getDatabaseInfo() + "\n" +
+                               "*************************************\n");
+        }
+    }
 
 
     public static<T> CompletableFuture<ObservableList<T>> listAll(Class<T> resultType) {
@@ -123,15 +139,23 @@ public final class TimetableDB {
 
 
     private static<T> T useStatement(Function<Statement, T> connectionConsumer) {
-        try(var conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PW);
-            var statement = conn.createStatement()) {
+        loading.set(true);
 
-            return connectionConsumer.apply(statement);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            Components.showErrorDialog("Nem sikerült csatlakozni a szerverhez!");
-            return null;
+        if(ACTIVE_DB_CONNECTION != null) {
+            try(var statement = ACTIVE_DB_CONNECTION.createStatement()) {
+                var result = connectionConsumer.apply(statement);
+
+                loading.set(false);
+
+                return result;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Components.showErrorDialog("Nem sikerült csatlakozni a szerverhez!");
+                return null;
+            }
         }
+
+        return null;
     }
 
     private static<T> CompletableFuture<ObservableList<T>> listInternal(String sql, ObjectMapper<T> mapper) {
@@ -151,6 +175,25 @@ public final class TimetableDB {
                 return FXCollections.observableArrayList(result);
             }
         ));
+    }
+
+    private static String getDatabaseInfo() {
+        var sql = "SELECT SUM(TABLE_ROWS) as RecordCount, COUNT(*) AS TableCount" +
+                  " FROM INFORMATION_SCHEMA.TABLES" +
+                  " WHERE TABLE_SCHEMA = 'timetable'";
+
+        return useStatement(statement -> {
+            try(var resultSet = statement.executeQuery(sql)) {
+                resultSet.next();
+
+                return "Record count: " + resultSet.getInt("RecordCount") + "\n" +
+                        "Table count:  " + resultSet.getInt("TableCount");
+            } catch (Exception e) {
+                e.printStackTrace();
+                Components.showErrorDialog("SQL Hiba történt! Hiba: \n" + e.getMessage());
+                return "";
+            }
+        });
     }
 
     private static void updateInternal(String sql) {
@@ -182,6 +225,15 @@ public final class TimetableDB {
         }
 
         updateInternal(sql);
+    }
+
+    private static Connection tryToConnect() {
+        try {
+            return DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PW);
+        } catch (SQLException e) {
+            Components.showErrorDialog("Nem sikerült csatlakozni a szerverhez!");
+            return null;
+        }
     }
 
     private static<T> CompletableFuture<ObservableList<T>> listCustom(String sql, Class<T> resultType) {

@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -48,14 +47,12 @@ public final class DiakGUIUtils {
 
     public static void refreshTable(TableView<Diak> table) {
         TimetableDB.listAll(Diak.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Diak> table) {
         TimetableDB.listFilteredDiak(Diak.fieldMappings.get(labelName), value)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
 

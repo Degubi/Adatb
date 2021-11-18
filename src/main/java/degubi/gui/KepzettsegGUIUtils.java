@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -35,14 +34,12 @@ public final class KepzettsegGUIUtils {
 
     public static void refreshTable(TableView<Kepzettseg> table) {
         TimetableDB.listAll(Kepzettseg.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Kepzettseg> table) {
         TimetableDB.listFiltered(Kepzettseg.fieldMappings.get(labelName), value, Kepzettseg.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
 

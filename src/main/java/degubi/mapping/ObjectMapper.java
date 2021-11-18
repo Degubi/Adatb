@@ -215,7 +215,13 @@ public final class ObjectMapper<T> {
 
         try {
             return mapper.constructor.newInstance(resultParameters);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch(IllegalArgumentException e) {
+            var receivedParameterTypes = Arrays.stream(resultParameters)
+                                               .map(k -> k == null ? Object.class : k.getClass())
+                                               .toArray(Class[]::new);
+
+            throw new IllegalStateException("Mapping constructor parameter type mismatch! Expected: " + Arrays.toString(mapper.parameterTypes) + ", got: " + Arrays.toString(receivedParameterTypes));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("Unable to call " + mapper.constructor, e);
         }
     }

@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.stat.*;
 import java.util.stream.*;
@@ -15,8 +14,7 @@ public final class StatGUIUtils {
     public static void refreshTantargyFrequencyChart(XYChart.Series<String, Number> series) {
         TimetableDB.getTantargyFrequencyMap()
                    .thenApply(k -> k.stream().map(m -> new XYChart.Data<>(m.nev, m.count)).toArray(XYChart.Data[]::new))
-                   .thenAccept(k -> Platform.runLater(() -> series.setData(FXCollections.observableArrayList(k))))
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(k -> Platform.runLater(() -> series.setData(FXCollections.observableArrayList(k))));
     }
 
     public static void refreshClassesPerDayChart(PieChart chart) {
@@ -24,8 +22,10 @@ public final class StatGUIUtils {
                    .thenApply(k -> IntStream.range(0, 5)
                                             .mapToObj(dayIndex -> new PieChart.Data(TimetableDB.getNapFromIndex(dayIndex), getCountForDay(k, dayIndex)))
                                             .toArray(PieChart.Data[]::new))
-                   .thenAccept(k -> Platform.runLater(() -> chart.setData(FXCollections.observableArrayList(k))))
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(k -> Platform.runLater(() -> {
+                       chart.setData(FXCollections.observableArrayList(k));
+                       chart.layout();
+                   }));
     }
 
 

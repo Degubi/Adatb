@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -35,14 +34,12 @@ public final class TantargyGUIUtils {
 
     public static void refreshTable(TableView<Tantargy> table) {
         TimetableDB.listAll(Tantargy.class)
-                  .thenAccept(table::setItems)
-                  .thenRun(() -> Main.loadingLabel.setVisible(false));
+                  .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Tantargy> table) {
         TimetableDB.listFiltered(Tantargy.fieldMappings.get(labelName), value, Tantargy.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
 

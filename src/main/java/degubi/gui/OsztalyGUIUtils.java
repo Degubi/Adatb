@@ -1,6 +1,5 @@
 package degubi.gui;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -35,14 +34,12 @@ public final class OsztalyGUIUtils {
 
     public static void refreshTable(TableView<Osztaly> table) {
         TimetableDB.listAll(Osztaly.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Osztaly> table) {
         TimetableDB.listFiltered(Osztaly.fieldMappings.get(labelName), value, Osztaly.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
 

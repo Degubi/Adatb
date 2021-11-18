@@ -2,7 +2,6 @@ package degubi.gui;
 
 import static java.lang.Integer.*;
 
-import degubi.*;
 import degubi.mapping.*;
 import degubi.model.*;
 import javafx.scene.control.*;
@@ -53,14 +52,12 @@ public final class TeremGUIUtils {
 
     public static void refreshTable(TableView<Terem> table) {
         TimetableDB.listAll(Terem.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
     public static void refreshFilteredTable(String labelName, String value, TableView<Terem> table) {
         TimetableDB.listFiltered(Terem.fieldMappings.get(labelName), value, Terem.class)
-                   .thenAccept(table::setItems)
-                   .thenRun(() -> Main.loadingLabel.setVisible(false));
+                   .thenAccept(table::setItems);
     }
 
 
