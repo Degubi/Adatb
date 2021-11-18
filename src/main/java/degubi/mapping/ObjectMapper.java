@@ -151,8 +151,7 @@ public final class ObjectMapper<T> {
 
             return "DELETE FROM " + mapper.tableName + " WHERE " + mapper.primaryKeyFieldName + " = " + sqlKeyValue;
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Unable to generate delete query!");
+            throw new IllegalStateException("Unable to generate delete query!", e);
         }
     }
 
@@ -169,8 +168,7 @@ public final class ObjectMapper<T> {
         try {
             return (Map<String, Object>) mapper.valuesCreator.invoke(obj);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Unable to create value mappings for: " + obj.getClass());
+            throw new IllegalStateException("Unable to create value mappings for: " + obj.getClass(), e);
         }
     }
 
@@ -189,8 +187,7 @@ public final class ObjectMapper<T> {
         try {
             return formatValueForSQL(mapper.primaryKeyField.get(obj));
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Wut");
+            throw new IllegalStateException("Wut", e);
         }
     }
 
@@ -219,7 +216,7 @@ public final class ObjectMapper<T> {
         try {
             return mapper.constructor.newInstance(resultParameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new IllegalStateException("Unable to call " + mapper.constructor);
+            throw new IllegalStateException("Unable to call " + mapper.constructor, e);
         }
     }
 

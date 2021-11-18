@@ -53,19 +53,22 @@ public final class Main extends Application {
         var subjectsFrequencyTab = newTab("Tantárgyak", statsTab, StatGUIUtils.createBarChart("Tantárgy", "Gyakoriság", "Tantárgyak Gyakorisága", subjectsFrequencySeries),
                                           k -> StatGUIUtils.refreshTantargyFrequencyChart(subjectsFrequencySeries));
 
+        var classesPerDayChart = StatGUIUtils.createPieChart("Órák eloszlása");
+        var classesPerDayTab = newTab("Órák", statsTab, classesPerDayChart, k -> StatGUIUtils.refreshClassesPerDayChart(classesPerDayChart));
+
         timetableTab.setContent(newTabPane(teacherTimetableTab, classTimetableTab));
         timetableTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
         tablesTab.setContent(newTabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab));
         tablesTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
-        statsTab.setContent(newTabPane(subjectsFrequencyTab));
+        statsTab.setContent(newTabPane(subjectsFrequencyTab, classesPerDayTab));
         statsTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
 
         var tablesTabBinding = tablesTab.selectedProperty();
         var mainTabPane = newTabPane(timetableTab, tablesTab, statsTab);
 
-        var addButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(mainTabPane));
-        addButton.visibleProperty().bind(tablesTabBinding);
-        addButton.managedProperty().bind(tablesTabBinding);
+        var addRecordButton = Components.newButton("Hozzáadás", e -> handleAddButtonClick(mainTabPane));
+        addRecordButton.visibleProperty().bind(tablesTabBinding);
+        addRecordButton.managedProperty().bind(tablesTabBinding);
 
         var searchTextField = new TextField();
         searchTextField.setPromptText("Keresés");
@@ -84,7 +87,7 @@ public final class Main extends Application {
         teachersComboBox.visibleProperty().bind(teachersComboBoxBinding);
         teachersComboBox.managedProperty().bind(teachersComboBoxBinding);
         teachersComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if(oldVal != null & newVal != null) {
+            if(oldVal != null && newVal != null) {
                 OraGUIUtils.refreshTeacherTable(teacherTimetable, newVal);
             }
         });
@@ -93,12 +96,12 @@ public final class Main extends Application {
         classesComboBox.visibleProperty().bind(classesComboBoxBinding);
         classesComboBox.managedProperty().bind(classesComboBoxBinding);
         classesComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if(oldVal != null & newVal != null) {
+            if(oldVal != null && newVal != null) {
                 OraGUIUtils.refreshClassTable(classTimetable, newVal);
             }
         });
 
-        var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addButton));
+        var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addRecordButton));
         bottomPanel.setPadding(new Insets(5));
 
         stage.setTitle("Órarend");
@@ -130,7 +133,7 @@ public final class Main extends Application {
             case classesTabLabel:        OsztalyGUIUtils.showEditorDialog(null, (TableView<Osztaly>) table);       break;
             case studentsTabLabel:       DiakGUIUtils.showEditorDialog(null, (TableView<Diak>) table);             break;
             case fullTimetableTabLabel:  OraGUIUtils.showEditorDialog(null, (TableView<Ora>) table);               break;
-            case subjectsTabLabel:       TantargyGUIUtils.showEditorDialog(null, (TableView<Tantargy>) table);      break;
+            case subjectsTabLabel:       TantargyGUIUtils.showEditorDialog(null, (TableView<Tantargy>) table);     break;
         }
     }
 
@@ -172,7 +175,6 @@ public final class Main extends Application {
                                                         : () -> DiakGUIUtils.refreshFilteredTable(field, value, (TableView<Diak>) table);
             case fullTimetableTabLabel:  return isEmpty ? () -> OraGUIUtils.refreshTable((TableView<Ora>) table)
                                                         : () -> OraGUIUtils.refreshFilteredTable(field, value, (TableView<Ora>) table);
-
             case subjectsTabLabel:       return isEmpty ? () -> TantargyGUIUtils.refreshTable((TableView<Tantargy>) table)
                                                         : () -> TantargyGUIUtils.refreshFilteredTable(field, value, (TableView<Tantargy>) table);
             default: return () -> {};

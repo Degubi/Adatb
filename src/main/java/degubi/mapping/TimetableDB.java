@@ -60,6 +60,13 @@ public final class TimetableDB {
         return listCustom(query, TantargyFrequencyStat.class);
     }
 
+    public static CompletableFuture<ObservableList<NaponkentiOrakStat>> getNaponkentiOrakMap() {
+        var query = "SELECT COUNT(*) AS Count, napIndex FROM " + TableNames.ORA +
+                    " GROUP BY napIndex";
+
+        return listCustom(query, NaponkentiOrakStat.class);
+    }
+
     public static CompletableFuture<ObservableList<Diak>> listFilteredDiak(String field, String value) {
         var tableToFilterIn = field.equals("osztalyMegnevezes") ? TableNames.OSZTALY : TableNames.DIAK;
         var fieldToCheck = field.equals("osztalyMegnevezes") ? "megnevezes" : field;
@@ -101,6 +108,17 @@ public final class TimetableDB {
         return listCustom(ObjectMapper.generateListAllQuery(Ora.class) +
                           " WHERE osztalyAzonosito = " + ObjectMapper.formatValueForSQL(osztaly.azonosito) +
                           " ORDER BY idopont ASC", Ora.class);
+    }
+
+    public static String getNapFromIndex(int index) {
+        switch(index) {
+            case 0: return "Hétfő";
+            case 1: return "Kedd";
+            case 2: return "Szerda";
+            case 3: return "Csütörtök";
+            case 4: return "Péntek";
+            default: throw new IllegalArgumentException("Unknown day index: " + index);
+        }
     }
 
 

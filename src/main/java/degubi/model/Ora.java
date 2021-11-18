@@ -28,7 +28,7 @@ public final class Ora {
 
         this.azonosito = azonosito;
         this.napIndex = napIndex;
-        this.nap = getNapFromIndex(napIndex);
+        this.nap = TimetableDB.getNapFromIndex(napIndex);
         this.idopont = idopont;
         this.tantargy = tantargy;
         this.tanar = tanar;
@@ -50,16 +50,4 @@ public final class Ora {
     public String getOsztaly() { return osztaly.toString(); }
     public String getTerem() { return terem.toString(); }
     public String getTanar() { return tanar.toString(); }
-
-
-    private static String getNapFromIndex(int index) {
-        switch(index) {
-            case 0: return "Hétfő";
-            case 1: return "Kedd";
-            case 2: return "Szerda";
-            case 3: return "Csütörtök";
-            case 4: return "Péntek";
-            default: throw new IllegalArgumentException("Unknown day index: " + index);
-        }
-    }
 }
