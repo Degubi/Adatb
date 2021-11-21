@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 18. 21:08
+-- Létrehozás ideje: 2021. Nov 21. 14:49
 -- Kiszolgáló verziója: 10.4.21-MariaDB
 -- PHP verzió: 8.0.12
 
@@ -38,6 +38,8 @@ CREATE TABLE `diak` (
 --
 
 INSERT INTO `diak` (`neptunKod`, `osztalyAzonosito`, `nev`) VALUES
+('IDC123', 8, 'Piros Alma'),
+('IDK321', 4, 'Néni, a Piroska'),
 ('KEK420', 7, 'Balázs Péter'),
 ('MAB123', 5, 'Vasas Piroska'),
 ('NEM666', 8, 'Senki se Tudja');
@@ -62,7 +64,9 @@ INSERT INTO `kepzettseg` (`azonosito`, `megnevezes`) VALUES
 (6, 'Matektanár'),
 (7, 'Lakatos'),
 (8, 'Zenetanár'),
-(9, 'Hittantanár');
+(9, 'Hittantanár'),
+(10, 'Tesitanár'),
+(11, 'Informatikatanár');
 
 -- --------------------------------------------------------
 
@@ -143,6 +147,7 @@ INSERT INTO `tanar` (`szemelyiSzam`, `nev`, `kepzettsegAzonosito`) VALUES
 ('ASDASD', 'Kovács Péter', 7),
 ('IDC666', 'Meggyőző Győző', 8),
 ('KALIMA', 'Piros Alma', 6),
+('MEH321', 'Illidan Stormrage', 10),
 ('NEMTOM', 'Tehát Jerry', 9);
 
 -- --------------------------------------------------------
@@ -168,7 +173,9 @@ INSERT INTO `tantargy` (`azonosito`, `nev`) VALUES
 (7, 'Földrajz'),
 (8, 'Zene'),
 (9, 'Testnevelés'),
-(10, 'Hittan');
+(10, 'Hittan'),
+(11, 'Dimat'),
+(12, 'Adatb');
 
 -- --------------------------------------------------------
 
@@ -192,7 +199,10 @@ INSERT INTO `terem` (`azonosito`, `teremSzam`, `epuletSzam`, `ferohelyekSzama`, 
 (3, 13, 42, 50, 0),
 (4, 42, 69, 21, 1),
 (5, 16, 42, 120, 1),
-(6, 2, 3, 33, 0);
+(6, 2, 3, 33, 0),
+(7, 15, 42, 420, 0),
+(8, 19, 3, 25, 1),
+(9, 6, 42, 50, 1);
 
 --
 -- Indexek a kiírt táblákhoz
@@ -258,7 +268,7 @@ ALTER TABLE `terem`
 -- AUTO_INCREMENT a táblához `kepzettseg`
 --
 ALTER TABLE `kepzettseg`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `ora`
@@ -276,13 +286,13 @@ ALTER TABLE `osztaly`
 -- AUTO_INCREMENT a táblához `tantargy`
 --
 ALTER TABLE `tantargy`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT a táblához `terem`
 --
 ALTER TABLE `terem`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Megkötések a kiírt táblákhoz
