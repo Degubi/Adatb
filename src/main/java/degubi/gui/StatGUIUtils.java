@@ -2,6 +2,7 @@ package degubi.gui;
 
 import degubi.mapping.*;
 import degubi.model.stat.*;
+import java.util.*;
 import java.util.stream.*;
 import javafx.application.*;
 import javafx.collections.*;
@@ -28,6 +29,23 @@ public final class StatGUIUtils {
                    }));
     }
 
+    @SuppressWarnings({ "boxing", "unchecked", "cast" })
+    public static void refreshEpicBubbleChart(BubbleChart<Number, Number> epicChart) {
+        TimetableDB.getNaponkentiTermenkentiOrakSzamaMap()
+                   .thenApply(k -> k.stream()
+                                    .collect(Collectors.groupingBy(m -> m.napIndex,
+                                             Collectors.mapping(m -> new XYChart.Data<>(calculateDayPos(m.napIndex), (Number) m.teremSzam, m.count), Collectors.toList()))))
+                   .thenApply(k -> FXCollections.observableArrayList(
+                           new XYChart.Series<>("Hétfő", FXCollections.observableArrayList(k.getOrDefault(0, List.of()))),
+                           new XYChart.Series<>("Kedd", FXCollections.observableArrayList(k.getOrDefault(1, List.of()))),
+                           new XYChart.Series<>("Szerda", FXCollections.observableArrayList(k.getOrDefault(2, List.of()))),
+                           new XYChart.Series<>("Csütörtök", FXCollections.observableArrayList(k.getOrDefault(3, List.of()))),
+                           new XYChart.Series<>("Péntek", FXCollections.observableArrayList(k.getOrDefault(4, List.of())))
+                       )
+                    )
+                   .thenAccept(k -> Platform.runLater(() -> epicChart.setData(k)));
+    }
+
 
     public static BarChart<String, Number> createBarChart(String xAxisLabel, String yAxisLabel, String chartLabel, XYChart.Series<String, Number> series) {
         var xAxis = new CategoryAxis();
@@ -50,6 +68,27 @@ public final class StatGUIUtils {
         return chart;
     }
 
+    public static BubbleChart<Number, Number> newBubiChart() {
+        var xAxis = new NumberAxis(0, 50, 1);
+        var yAxis = new NumberAxis();
+
+        xAxis.setLabel("Nap");
+        yAxis.setTickUnit(1);
+        yAxis.setLabel("Teremszám");
+
+        var chart = new BubbleChart<>(xAxis, yAxis);
+        chart.setTitle("Nagyon epic stat");
+        chart.setAnimated(false);
+
+        return chart;
+    }
+
+
+    // Java pls
+    @SuppressWarnings("boxing")
+    private static Number calculateDayPos(int napIndex) {
+        return napIndex * 10 + 5;
+    }
 
     private static long getCountForDay(ObservableList<NaponkentiOrakStat> data, int dayIndex) {
         return data.stream()

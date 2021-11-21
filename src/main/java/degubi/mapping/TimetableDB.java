@@ -83,6 +83,13 @@ public final class TimetableDB {
         return listCustom(query, NaponkentiOrakStat.class);
     }
 
+    public static CompletableFuture<ObservableList<NaponkentiTermenkentiOrakSzamaStat>> getNaponkentiTermenkentiOrakSzamaMap() {
+        var query = "SELECT COUNT(*) as Count, (SELECT teremSzam from terem WHERE azonosito = teremAzonosito) as teremSzam, napIndex FROM ora" +
+                    " GROUP BY napIndex, teremSzam";
+
+        return listCustom(query, NaponkentiTermenkentiOrakSzamaStat.class);
+    }
+
     public static CompletableFuture<ObservableList<Diak>> listFilteredDiak(String field, String value) {
         var tableToFilterIn = field.equals("osztalyMegnevezes") ? TableNames.OSZTALY : TableNames.DIAK;
         var fieldToCheck = field.equals("osztalyMegnevezes") ? "megnevezes" : field;

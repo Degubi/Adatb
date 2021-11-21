@@ -56,11 +56,14 @@ public final class Main extends Application {
         var classesPerDayChart = StatGUIUtils.createPieChart("Órák Naponkénti Eloszlása");
         var classesPerDayTab = newTab("Órák", statsTab, classesPerDayChart, k -> StatGUIUtils.refreshClassesPerDayChart(classesPerDayChart));
 
+        var epicChart = StatGUIUtils.newBubiChart();
+        var epicTab = newTab("Terem-Nap-Óraszám", statsTab, epicChart, k -> StatGUIUtils.refreshEpicBubbleChart(epicChart));
+
         timetableTab.setContent(newTabPane(teacherTimetableTab, classTimetableTab));
         timetableTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
         tablesTab.setContent(newTabPane(fullTimetableTab, teachersTab, studentsTab, subjectsTab, qualificationsTab, roomsTab, classesTab));
         tablesTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
-        statsTab.setContent(newTabPane(subjectsFrequencyTab, classesPerDayTab));
+        statsTab.setContent(newTabPane(subjectsFrequencyTab, classesPerDayTab, epicTab));
         statsTab.setOnSelectionChanged(Main::handleTopLevelTabSelection);
 
         var tablesTabBinding = tablesTab.selectedProperty();
