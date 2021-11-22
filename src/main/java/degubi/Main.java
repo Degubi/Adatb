@@ -1,7 +1,6 @@
 package degubi;
 
 import degubi.gui.*;
-import degubi.mapping.*;
 import degubi.model.*;
 import java.util.*;
 import java.util.function.*;
@@ -86,28 +85,10 @@ public final class Main extends Application {
         darkModeSwitchButton.setTooltip(new Tooltip("Világos/Sötét Mód"));
         darkModeSwitchButton.setOnAction(e -> handleDarkModeSwitch(stage, darkModeSwitchButton));
 
-        var teachersComboBoxBinding = timetableTab.selectedProperty().and(teacherTimetableTab.selectedProperty());
-        teachersComboBox.visibleProperty().bind(teachersComboBoxBinding);
-        teachersComboBox.managedProperty().bind(teachersComboBoxBinding);
-        teachersComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if(oldVal != null && newVal != null) {
-                OraGUIUtils.refreshTeacherTable(teacherTimetable, newVal);
-            }
-        });
+        initializeTimetableComboBox(teachersComboBox, teacherTimetableTab, timetableTab, k -> OraGUIUtils.refreshTeacherTable(teacherTimetable, k));
+        initializeTimetableComboBox(classesComboBox, classTimetableTab, timetableTab, k -> OraGUIUtils.refreshClassTable(classTimetable, k));
 
-        var classesComboBoxBinding = timetableTab.selectedProperty().and(classTimetableTab.selectedProperty());
-        classesComboBox.visibleProperty().bind(classesComboBoxBinding);
-        classesComboBox.managedProperty().bind(classesComboBoxBinding);
-        classesComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if(oldVal != null && newVal != null) {
-                OraGUIUtils.refreshClassTable(classTimetable, newVal);
-            }
-        });
-
-        var loadingLabel = new Label("Töltés...");
-        loadingLabel.visibleProperty().bind(TimetableDB.loading);
-
-        var bottomPanel = new BorderPane(null, null, new HBox(16, loadingLabel, darkModeSwitchButton), null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addRecordButton));
+        var bottomPanel = new BorderPane(null, null, darkModeSwitchButton, null, new HBox(16, teachersComboBox, classesComboBox, searchFilterSelectorBox, searchTextField, addRecordButton));
         bottomPanel.setPadding(new Insets(5));
 
         stage.setTitle("Órarend");
@@ -124,6 +105,17 @@ public final class Main extends Application {
 
         stage.getScene().getRoot().setStyle(Components.windowTheme);
         switchButton.setGraphic(isDay ? Components.nightIcon : Components.dayIcon);
+    }
+
+    private static<T> void initializeTimetableComboBox(ComboBox<T> comboBox, Tab boxOnTab, Tab timetableTab, Consumer<T> newValueConsumer) {
+        var teachersComboBoxBinding = timetableTab.selectedProperty().and(boxOnTab.selectedProperty());
+        comboBox.visibleProperty().bind(teachersComboBoxBinding);
+        comboBox.managedProperty().bind(teachersComboBoxBinding);
+        comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if(oldVal != null && newVal != null) {
+                newValueConsumer.accept(newVal);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

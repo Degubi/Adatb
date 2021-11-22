@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 21. 14:49
+-- Létrehozás ideje: 2021. Nov 22. 16:55
 -- Kiszolgáló verziója: 10.4.21-MariaDB
--- PHP verzió: 8.0.12
+-- PHP verzió: 7.3.31
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -42,7 +42,10 @@ INSERT INTO `diak` (`neptunKod`, `osztalyAzonosito`, `nev`) VALUES
 ('IDK321', 4, 'Néni, a Piroska'),
 ('KEK420', 7, 'Balázs Péter'),
 ('MAB123', 5, 'Vasas Piroska'),
-('NEM666', 8, 'Senki se Tudja');
+('MEH567', 8, 'Neve Sincs'),
+('NEM666', 8, 'Senki se Tudja'),
+('POP999', 8, 'Degubi'),
+('YOLO43', 13, 'Ivan Dimitri');
 
 -- --------------------------------------------------------
 
@@ -102,7 +105,19 @@ INSERT INTO `ora` (`azonosito`, `napIndex`, `idopont`, `tantargyAzonosito`, `tan
 (16, 1, '17:30', 5, 'KALIMA', 5, 5),
 (17, 1, '12:15', 9, 'KALIMA', 8, 6),
 (18, 4, '06:00', 5, 'ASDASD', 4, 5),
-(19, 3, '06:00', 5, 'NEMTOM', 9, 3);
+(19, 3, '06:00', 5, 'NEMTOM', 9, 3),
+(20, 0, '06:00', 9, 'MEH321', 5, 8),
+(21, 2, '15:00', 8, 'NEMTOM', 5, 9),
+(22, 4, '21:00', 10, 'MEH321', 8, 5),
+(23, 1, '16:00', 11, 'MEH321', 7, 6),
+(24, 1, '16:45', 4, 'NEMTOM', 13, 8),
+(25, 4, '17:15', 6, 'KALIMA', 7, 5),
+(26, 0, '09:00', 12, 'IDC666', 12, 7),
+(27, 3, '12:00', 7, 'ASDASD', 13, 4),
+(28, 2, '17:00', 12, 'ASDASD', 8, 9),
+(29, 1, '20:00', 6, 'MEH321', 12, 7),
+(30, 0, '13:00', 7, 'IDC666', 11, 7),
+(31, 3, '17:45', 5, 'NEMTOM', 11, 5);
 
 -- --------------------------------------------------------
 
@@ -125,7 +140,10 @@ INSERT INTO `osztaly` (`azonosito`, `megnevezes`) VALUES
 (6, '12. C'),
 (7, '11. D'),
 (8, '8. A'),
-(9, '11. A');
+(9, '11. A'),
+(11, '9. A'),
+(12, '10. B'),
+(13, '13. E');
 
 -- --------------------------------------------------------
 
@@ -146,9 +164,12 @@ CREATE TABLE `tanar` (
 INSERT INTO `tanar` (`szemelyiSzam`, `nev`, `kepzettsegAzonosito`) VALUES
 ('ASDASD', 'Kovács Péter', 7),
 ('IDC666', 'Meggyőző Győző', 8),
+('III111', 'Szabó Ernő', 11),
 ('KALIMA', 'Piros Alma', 6),
 ('MEH321', 'Illidan Stormrage', 10),
-('NEMTOM', 'Tehát Jerry', 9);
+('NEMTOM', 'Tehát Jerry', 9),
+('NUB859', 'Bene Levente', 9),
+('YOLO321', 'Lakatos István', 10);
 
 -- --------------------------------------------------------
 
@@ -274,13 +295,13 @@ ALTER TABLE `kepzettseg`
 -- AUTO_INCREMENT a táblához `ora`
 --
 ALTER TABLE `ora`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT a táblához `osztaly`
 --
 ALTER TABLE `osztaly`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT a táblához `tantargy`

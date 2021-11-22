@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.*;
-import javafx.beans.property.*;
 import javafx.collections.*;
 
 public final class TimetableDB {
@@ -20,8 +19,6 @@ public final class TimetableDB {
     private static final String DB_PW = "gimmecookies";
 
     private static final Connection ACTIVE_DB_CONNECTION;
-    public static final SimpleBooleanProperty loading = new SimpleBooleanProperty(false);
-
 
     static {
         ACTIVE_DB_CONNECTION = tryToConnect();
@@ -146,15 +143,9 @@ public final class TimetableDB {
 
 
     private static<T> T useStatement(Function<Statement, T> connectionConsumer) {
-        loading.set(true);
-
         if(ACTIVE_DB_CONNECTION != null) {
             try(var statement = ACTIVE_DB_CONNECTION.createStatement()) {
-                var result = connectionConsumer.apply(statement);
-
-                loading.set(false);
-
-                return result;
+                return connectionConsumer.apply(statement);
             } catch (SQLException e) {
                 e.printStackTrace();
                 Components.showErrorDialog("Nem sikerült csatlakozni a szerverhez!");

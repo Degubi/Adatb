@@ -77,7 +77,7 @@ public final class StatGUIUtils {
         yAxis.setLabel("Teremszám");
 
         var chart = new BubbleChart<>(xAxis, yAxis);
-        chart.setTitle("Nagyon epic stat");
+        chart.setTitle("Terem-Nap-Óraszám");
         chart.setAnimated(false);
 
         return chart;
