@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 22. 16:55
+-- Létrehozás ideje: 2021. Nov 24. 00:35
 -- Kiszolgáló verziója: 10.4.21-MariaDB
 -- PHP verzió: 7.3.31
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `timetable`
 --
+CREATE DATABASE IF NOT EXISTS `timetable` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `timetable`;
 
 -- --------------------------------------------------------
 
@@ -323,22 +325,22 @@ ALTER TABLE `terem`
 -- Megkötések a táblához `diak`
 --
 ALTER TABLE `diak`
-  ADD CONSTRAINT `diak_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`);
+  ADD CONSTRAINT `diak_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`) ON UPDATE CASCADE;
 
 --
 -- Megkötések a táblához `ora`
 --
 ALTER TABLE `ora`
-  ADD CONSTRAINT `ora_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`),
-  ADD CONSTRAINT `ora_ibfk_2` FOREIGN KEY (`tanarSzemelyiSzam`) REFERENCES `tanar` (`szemelyiSzam`),
-  ADD CONSTRAINT `ora_ibfk_3` FOREIGN KEY (`teremAzonosito`) REFERENCES `terem` (`azonosito`),
-  ADD CONSTRAINT `ora_ibfk_4` FOREIGN KEY (`tantargyAzonosito`) REFERENCES `tantargy` (`azonosito`);
+  ADD CONSTRAINT `ora_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `ora_ibfk_2` FOREIGN KEY (`tanarSzemelyiSzam`) REFERENCES `tanar` (`szemelyiSzam`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `ora_ibfk_3` FOREIGN KEY (`teremAzonosito`) REFERENCES `terem` (`azonosito`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `ora_ibfk_4` FOREIGN KEY (`tantargyAzonosito`) REFERENCES `tantargy` (`azonosito`) ON UPDATE CASCADE;
 
 --
 -- Megkötések a táblához `tanar`
 --
 ALTER TABLE `tanar`
-  ADD CONSTRAINT `Kepzettseg_osszekotes` FOREIGN KEY (`kepzettsegAzonosito`) REFERENCES `kepzettseg` (`azonosito`);
+  ADD CONSTRAINT `Kepzettseg_osszekotes` FOREIGN KEY (`kepzettsegAzonosito`) REFERENCES `kepzettseg` (`azonosito`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
