@@ -21,7 +21,10 @@ public final class StatGUIUtils {
     public static void refreshClassesPerDayChart(PieChart chart) {
         TimetableDB.getNaponkentiOrakMap()
                    .thenApply(k -> IntStream.range(0, 5)
-                                            .mapToObj(dayIndex -> new PieChart.Data(TimetableDB.getNapFromIndex(dayIndex), getCountForDay(k, dayIndex)))
+                                            .mapToObj(dayIndex -> {
+                                                var countForDay = getCountForDay(k, dayIndex);
+                                                return new PieChart.Data(TimetableDB.getNapFromIndex(dayIndex) + "(" + countForDay + ")", countForDay);
+                                            })
                                             .toArray(PieChart.Data[]::new))
                    .thenAccept(k -> Platform.runLater(() -> {
                        chart.setData(FXCollections.observableArrayList(k));

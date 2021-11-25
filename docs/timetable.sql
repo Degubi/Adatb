@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2021. Nov 24. 00:35
+-- Létrehozás ideje: 2021. Nov 25. 15:55
 -- Kiszolgáló verziója: 10.4.21-MariaDB
--- PHP verzió: 7.3.31
+-- PHP verzió: 8.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -119,7 +119,11 @@ INSERT INTO `ora` (`azonosito`, `napIndex`, `idopont`, `tantargyAzonosito`, `tan
 (28, 2, '17:00', 12, 'ASDASD', 8, 9),
 (29, 1, '20:00', 6, 'MEH321', 12, 7),
 (30, 0, '13:00', 7, 'IDC666', 11, 7),
-(31, 3, '17:45', 5, 'NEMTOM', 11, 5);
+(31, 3, '17:45', 5, 'NEMTOM', 11, 5),
+(32, 4, '16:30', 11, 'YOLO321', 13, 6),
+(33, 3, '14:45', 5, 'YOLO321', 13, 4),
+(34, 1, '08:00', 7, 'NUB859', 13, 9),
+(35, 0, '10:00', 11, 'NUB859', 13, 9);
 
 -- --------------------------------------------------------
 
@@ -297,7 +301,7 @@ ALTER TABLE `kepzettseg`
 -- AUTO_INCREMENT a táblához `ora`
 --
 ALTER TABLE `ora`
-  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `azonosito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT a táblához `osztaly`
@@ -325,22 +329,22 @@ ALTER TABLE `terem`
 -- Megkötések a táblához `diak`
 --
 ALTER TABLE `diak`
-  ADD CONSTRAINT `diak_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `diak_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`);
 
 --
 -- Megkötések a táblához `ora`
 --
 ALTER TABLE `ora`
-  ADD CONSTRAINT `ora_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `ora_ibfk_2` FOREIGN KEY (`tanarSzemelyiSzam`) REFERENCES `tanar` (`szemelyiSzam`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `ora_ibfk_3` FOREIGN KEY (`teremAzonosito`) REFERENCES `terem` (`azonosito`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `ora_ibfk_4` FOREIGN KEY (`tantargyAzonosito`) REFERENCES `tantargy` (`azonosito`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `ora_ibfk_1` FOREIGN KEY (`osztalyAzonosito`) REFERENCES `osztaly` (`azonosito`),
+  ADD CONSTRAINT `ora_ibfk_2` FOREIGN KEY (`tanarSzemelyiSzam`) REFERENCES `tanar` (`szemelyiSzam`),
+  ADD CONSTRAINT `ora_ibfk_3` FOREIGN KEY (`teremAzonosito`) REFERENCES `terem` (`azonosito`),
+  ADD CONSTRAINT `ora_ibfk_4` FOREIGN KEY (`tantargyAzonosito`) REFERENCES `tantargy` (`azonosito`);
 
 --
 -- Megkötések a táblához `tanar`
 --
 ALTER TABLE `tanar`
-  ADD CONSTRAINT `Kepzettseg_osszekotes` FOREIGN KEY (`kepzettsegAzonosito`) REFERENCES `kepzettseg` (`azonosito`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `Kepzettseg_osszekotes` FOREIGN KEY (`kepzettsegAzonosito`) REFERENCES `kepzettseg` (`azonosito`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
